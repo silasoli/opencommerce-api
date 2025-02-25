@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import { render } from 'ejs';
 import * as path from 'path';
-import { SendEmailDto } from '../dto/send-email.dto';
 import { MailgunProvider } from '../providers/mailgun.provider';
+import { SendEmailWithTemplateDto } from '../dto/send-email-template.dto';
+import { SendEmailWithTextDto } from '../dto/send-email-text.dto';
 
 @Injectable()
 export class MailerService {
@@ -27,13 +28,19 @@ export class MailerService {
     return render(templateContent, variables);
   }
 
-  async sendEmail(dto: SendEmailDto) {
-    let html: string | undefined = undefined;
+  public async sendEmailWithTemplate(
+    dto: SendEmailWithTemplateDto,
+  ): Promise<void> {
+    let html: string | null = null;
 
     if (dto.template) {
       html = this.loadTemplate(dto.template, dto.variables || {});
     }
 
-    await this.mailgunProvider.sendEmail(dto.to, dto.subject, dto.text, html);
+    await this.mailgunProvider.sendEmail(dto.to, dto.subject, null, html);
+  }
+
+  public async sendEmailWithText(dto: SendEmailWithTextDto): Promise<void> {
+    await this.mailgunProvider.sendEmail(dto.to, dto.subject, dto.text, null);
   }
 }

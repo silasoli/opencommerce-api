@@ -32,8 +32,8 @@ export class MailgunProvider {
   async sendEmail(
     to: string,
     subject: string,
-    text?: string,
-    html?: string,
+    text: string | null,
+    html: string | null,
   ): Promise<AxiosResponse<SendMessageMailgunResponse>> {
     const auth = Buffer.from(`api:${this.MAILGUN_API_KEY}`).toString('base64');
     const fromEmail = `no-reply-opencommerce@${this.MAILGUN_DOMAIN}`;
