@@ -12,7 +12,7 @@ import { SERVER_ERRORS } from '../../common/constants/server.errors';
 export class MailgunProvider {
   private MAILGUN_API_KEY: string | undefined;
   private MAILGUN_DOMAIN: string | undefined;
-  private apiUrl: string;
+  private API_URL: string;
 
   constructor(
     private readonly configService: ConfigService,
@@ -25,7 +25,7 @@ export class MailgunProvider {
       throw SERVER_ERRORS.NOT_FOUND_PORT;
     }
 
-    this.apiUrl = `https://api.mailgun.net/v3/${this.MAILGUN_DOMAIN}/messages`;
+    this.API_URL = `https://api.mailgun.net/v3/${this.MAILGUN_DOMAIN}/messages`;
   }
 
   async sendEmail(
@@ -45,12 +45,16 @@ export class MailgunProvider {
     if (html) data.append('html', html);
 
     try {
-      const response = await this.httpService.axiosRef.post(this.apiUrl, data, {
-        headers: {
-          Authorization: `Basic ${auth}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
+      const response = await this.httpService.axiosRef.post(
+        this.API_URL,
+        data,
+        {
+          headers: {
+            Authorization: `Basic ${auth}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
         },
-      });
+      );
 
       return response.data as AxiosResponse<SendMessageMailgunResponse>;
     } catch (error) {
