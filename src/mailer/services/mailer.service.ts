@@ -5,6 +5,7 @@ import * as path from 'path';
 import { MailgunProvider } from '../providers/mailgun.provider';
 import { SendEmailWithTemplateDto } from '../dto/send-email-template.dto';
 import { SendEmailWithTextDto } from '../dto/send-email-text.dto';
+import { MAILER_ERRORS } from '../constants/mailer.errors';
 
 @Injectable()
 export class MailerService {
@@ -20,9 +21,7 @@ export class MailerService {
       `${templateName}.ejs`,
     );
 
-    if (!fs.existsSync(templatePath)) {
-      throw new Error(`Template ${templateName} not found.`);
-    }
+    if (!fs.existsSync(templatePath)) throw MAILER_ERRORS.NOT_FOUND_TEMPLATE;
 
     const templateContent: string = fs.readFileSync(templatePath, 'utf-8');
     return render(templateContent, variables);

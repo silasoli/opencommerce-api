@@ -6,6 +6,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { AxiosResponse } from 'axios';
 import { SendMessageMailgunResponse } from '../types/SendMessageMailgunResponse.types';
+import { SERVER_ERRORS } from '../../common/constants/server.errors';
 
 @Injectable()
 export class MailgunProvider {
@@ -21,9 +22,7 @@ export class MailgunProvider {
     this.MAILGUN_DOMAIN = this.configService.get<string>('MAILGUN_DOMAIN');
 
     if (!this.MAILGUN_API_KEY || !this.MAILGUN_DOMAIN) {
-      throw new Error(
-        'Mailgun API Key or MAILGUN_DOMAIN is missing in environment variables.',
-      );
+      throw SERVER_ERRORS.NOT_FOUND_PORT;
     }
 
     this.apiUrl = `https://api.mailgun.net/v3/${this.MAILGUN_DOMAIN}/messages`;

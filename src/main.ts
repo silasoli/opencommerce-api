@@ -2,11 +2,25 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
+import { SERVER_ERRORS } from './common/constants/server.errors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.get(ConfigService);
+  const configService = app.get(ConfigService);
+
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  });
+
+  app.useGlobalPipes(
+    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
+  );
+
+  // app.useGlobalFilters(new AllExceptionsFilter(), new MongoExceptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle('Open Commerce API')
@@ -16,6 +30,8 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+
+  const theme = new SwaggerTheme();
 
   SwaggerModule.setup('docs', app, document, {
     swaggerOptions: {
@@ -37,10 +53,13 @@ async function bootstrap() {
       'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.0/swagger-ui-standalone-preset.js',
       'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.0/swagger-ui-init.js',
     ],
-    // customCss: theme.getBuffer(SwaggerThemeNameEnum.DARK),
+    customCss: theme.getBuffer(SwaggerThemeNameEnum.DARK),
     // customCss: SWAGGER_CUSTOM_CSS,
   });
 
-  await app.listen(process.env.PORT ?? 3000);
+  const PORT = configService.get<number>('PORT');
+  if (!PORT) throw SERVER_ERRORS.NOT_FOUND_PORT;
+
+  await app.listen(PORT);
 }
 void bootstrap();
