@@ -22,7 +22,7 @@ export class MailgunProvider {
     this.MAILGUN_DOMAIN = this.configService.get<string>('MAILGUN_DOMAIN');
 
     if (!this.MAILGUN_API_KEY || !this.MAILGUN_DOMAIN) {
-      throw SERVER_ERRORS.NOT_FOUND_PORT;
+      throw SERVER_ERRORS.NOT_FOUND_MAILGUN;
     }
 
     this.API_URL = `https://api.mailgun.net/v3/${this.MAILGUN_DOMAIN}/messages`;

@@ -10,4 +10,8 @@ export const SERVER_ERRORS = {
     message:
       'Mailgun API Key or MAILGUN_DOMAIN is missing in environment variables.',
   }),
+  NOT_FOUND_VIA_CEP: new InternalServerErrorException({
+    id: 'SRV-003',
+    message: 'VIA CEP URL is missing in environment variables.',
+  }),
 };
