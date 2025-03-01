@@ -23,12 +23,11 @@ export class CreditCardTokenizeAsaasDto {
     addressComplement?: string;
     phone: string;
     mobilePhone?: string;
-  }
+  };
 
   @ApiProperty({ required: true })
   remoteIp: string;
 }
-
 
 export class CreateChargeCardAsaasDto {
   @ApiProperty({ required: true })
@@ -62,5 +61,5 @@ export class CreateChargeCardAsaasDto {
   // authorizeOnly: string
 
   @ApiProperty({ required: true })
-  remoteIp: string
+  remoteIp: string;
 }

@@ -1,6 +1,5 @@
 import { BillingType } from '../../dto/payments/create-charge-asaas.dto';
 
-
 export enum PaymentStatus {
   PENDING = 'PENDING',
   RECEIVED = 'RECEIVED',

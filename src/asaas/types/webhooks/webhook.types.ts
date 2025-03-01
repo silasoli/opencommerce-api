@@ -24,7 +24,7 @@ export type Payment = {
   externalReference: string;
   billingType: string;
   status: string;
-  pixTransaction?: unknown | null;
+  pixTransaction?: unknown;
   confirmedDate: string;
   paymentDate: string;
   clientPaymentDate: string;
@@ -48,7 +48,7 @@ export type Payment = {
   interest: Interest;
   split: Split[];
   chargeback?: Chargeback | null;
-  refunds?: unknown | null;
+  refunds?: unknown;
 };
 
 export type CreditCard = {
