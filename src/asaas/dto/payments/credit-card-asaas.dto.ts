@@ -1,4 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { BillingType } from './create-charge-asaas.dto';
+
+
+export class CreditCardHolderInfoAsaasDto {
+  @ApiProperty({ required: true })
+  name: string;
+  @ApiProperty({ required: true })
+  email: string;
+  @ApiProperty({ required: true })
+  cpfCnpj: string;
+  @ApiProperty({ required: true })
+  postalCode: string;
+  @ApiProperty({ required: true })
+  addressNumber: string;
+  @ApiProperty({ required: true })
+  addressComplement?: string;
+  @ApiProperty({ required: true })
+  phone: string;
+  @ApiProperty({ required: true })
+  mobilePhone?: string;
+}
+
 
 export class CreditCardTokenizeAsaasDto {
   @ApiProperty({ required: true })
@@ -14,16 +36,7 @@ export class CreditCardTokenizeAsaasDto {
   };
 
   @ApiProperty({ required: true })
-  creditCardHolderInfo: {
-    name: string;
-    email: string;
-    cpfCnpj: string;
-    postalCode: string;
-    addressNumber: string;
-    addressComplement?: string;
-    phone: string;
-    mobilePhone?: string;
-  };
+  creditCardHolderInfo: CreditCardHolderInfoAsaasDto;
 
   @ApiProperty({ required: true })
   remoteIp: string;
@@ -53,6 +66,18 @@ export class CreateChargeCardAsaasDto {
 
   @ApiProperty({ required: true })
   discount?: { value: number };
+
+  @ApiProperty({ required: true })
+  creditCardToken: string;
+
+  @ApiProperty({ required: true })
+  authorizeOnly: boolean;
+
+  @ApiProperty({ required: true })
+  billingType: BillingType.CREDIT_CARD;
+
+  @ApiProperty({ required: true })
+  creditCardHolderInfo: CreditCardHolderInfoAsaasDto;
 
   // @ApiProperty({ required: true })
   // creditCardToken: string;

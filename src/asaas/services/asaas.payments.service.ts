@@ -1,5 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
 import {
   BillingType,
   CreateChargeAsaasDto,
@@ -15,107 +14,52 @@ import {
   CreditCardTokenizeAsaasDto,
 } from '../dto/payments/credit-card-asaas.dto';
 import { CreditCardTokenizeAsaasResponse } from '../types/payments/CreditCardAsaasResponse.types';
-import { AsaasError } from '../types/asaas/AsaasError.types';
-import { AxiosError } from 'axios';
+import { ConfigService } from '@nestjs/config';
+import { AsaasHttpService } from './asaas.http.service';
+import { SERVER_ERRORS } from '../../common/constants/server.errors';
 
 @Injectable()
 export class AsaasPaymentsService {
-  private ASAAS_URL = `${process.env.ASAAS_URL}`;
-  private ASAAS_AUTH = process.env.ASAAS_AUTH;
+  private readonly ASAAS_URL: string;
+  private readonly ASAAS_AUTH: string;
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly asaasHttpService: AsaasHttpService,
+  ) {
+    const asaasAuth = this.configService.get<string>('ASAAS_AUTH');
+    if (!asaasAuth) throw SERVER_ERRORS.NOT_FOUND_ASAAS_AUTH;
+    this.ASAAS_AUTH = asaasAuth;
 
+    const asaasUrl = this.configService.get<string>('ASAAS_URL');
+    if (!asaasUrl) throw SERVER_ERRORS.NOT_FOUND_ASAAS_URL;
+    this.ASAAS_URL = `${asaasUrl}`;
+  }
   public async createCharge(
     dto: CreateChargeAsaasDto,
   ): Promise<CreateChargeAsaasResponse> {
-    const URL = `${this.ASAAS_URL}/payments`;
-
-    try {
-      const response = await this.httpService.axiosRef.post(
-        URL,
-        {
-          ...dto,
-        },
-        {
-          headers: {
-            access_token: this.ASAAS_AUTH,
-          },
-        },
-      );
-
-      return response.data as CreateChargeAsaasResponse;
-    } catch (error) {
-      if (error instanceof AxiosError && error.response) {
-        const assasError = error as AsaasError;
-        const statusCode = assasError.response.status;
-
-        const errors = assasError.response.data.errors[0];
-        throw new HttpException(errors, statusCode);
-      }
-
-      throw new HttpException('Unknown error', 500);
-    }
+    return this.asaasHttpService.post<
+      CreateChargeAsaasResponse,
+      CreateChargeAsaasDto
+    >(`${this.ASAAS_URL}/payments`, dto, { access_token: this.ASAAS_AUTH });
   }
 
   public async findOneCharge(id: string): Promise<ChargeAsaasResponse> {
-    const URL = `${this.ASAAS_URL}/payments/${id}`;
-
-    try {
-      const response = await this.httpService.axiosRef.get(URL, {
-        headers: {
-          access_token: this.ASAAS_AUTH,
-        },
-      });
-
-      return response.data as ChargeAsaasResponse;
-    } catch (error) {
-      if (error instanceof AxiosError && error.response) {
-        const assasError = error as AsaasError;
-        const statusCode = assasError.response.status;
-
-        const errors = assasError.response.data.errors[0];
-        throw new HttpException(errors, statusCode);
-      }
-
-      throw new HttpException('Unknown error', 500);
-    }
+    return this.asaasHttpService.get<ChargeAsaasResponse>(
+      `${this.ASAAS_URL}/payments/${id}`,
+      { access_token: this.ASAAS_AUTH },
+    );
   }
 
   private async creditCardTokenize(
     dto: CreditCardTokenizeAsaasDto,
   ): Promise<CreditCardTokenizeAsaasResponse> {
-    const data = {
-      ...dto,
-      creditCardHolderInfo: { ...dto.creditCardHolderInfo },
-    };
-
-    const URL = `${this.ASAAS_URL}/creditCard/tokenize`;
-
-    try {
-      const response = await this.httpService.axiosRef.post(
-        URL,
-        {
-          ...data,
-        },
-        {
-          headers: {
-            access_token: this.ASAAS_AUTH,
-          },
-        },
-      );
-
-      return response.data as CreditCardTokenizeAsaasResponse;
-    } catch (error) {
-      if (error instanceof AxiosError && error.response) {
-        const assasError = error as AsaasError;
-        const statusCode = assasError.response.status;
-
-        const errors = assasError.response.data.errors[0];
-        throw new HttpException(errors, statusCode);
-      }
-
-      throw new HttpException('Unknown error', 500);
-    }
+    return this.asaasHttpService.post<
+      CreditCardTokenizeAsaasResponse,
+      CreditCardTokenizeAsaasDto
+    >(`${this.ASAAS_URL}/creditCard/tokenize`, dto, {
+      access_token: this.ASAAS_AUTH,
+    });
   }
 
   public async creditCard(
@@ -123,88 +67,36 @@ export class AsaasPaymentsService {
     card: CreditCardTokenizeAsaasDto,
   ): Promise<CreateChargeAsaasResponse> {
     const token = await this.creditCardTokenize(card);
-
-    const URL = `${this.ASAAS_URL}/payments`;
-
-    try {
-      const response = await this.httpService.axiosRef.post(
-        URL,
-        {
-          ...dto,
-          installmentCount: dto.installmentCount,
-          creditCardToken: token.creditCardToken,
-          authorizeOnly: false,
-          billingType: BillingType.CREDIT_CARD,
-          creditCardHolderInfo: { ...card.creditCardHolderInfo },
-        },
-        {
-          headers: {
-            access_token: this.ASAAS_AUTH,
-          },
-        },
-      );
-
-      return response.data as CreateChargeAsaasResponse;
-    } catch (error) {
-      if (error instanceof AxiosError && error.response) {
-        const assasError = error as AsaasError;
-        const statusCode = assasError.response.status;
-
-        const errors = assasError.response.data.errors[0];
-        throw new HttpException(errors, statusCode);
-      }
-
-      throw new HttpException('Unknown error', 500);
-    }
+    return this.asaasHttpService.post<
+      CreateChargeAsaasResponse,
+      CreateChargeCardAsaasDto
+    >(
+      `${this.ASAAS_URL}/payments`,
+      {
+        ...dto,
+        installmentCount: dto.installmentCount,
+        creditCardToken: token.creditCardToken,
+        authorizeOnly: false,
+        billingType: BillingType.CREDIT_CARD,
+        creditCardHolderInfo: { ...card.creditCardHolderInfo },
+      },
+      { access_token: this.ASAAS_AUTH },
+    );
   }
 
   public async getInvoiceDigitableBill(
     id: string,
   ): Promise<DigitableBillAsaasResponse> {
-    const URL = `${this.ASAAS_URL}/payments/${id}/identificationField`;
-
-    try {
-      const response = await this.httpService.axiosRef.get(URL, {
-        headers: {
-          access_token: this.ASAAS_AUTH,
-        },
-      });
-
-      return response.data as DigitableBillAsaasResponse;
-    } catch (error) {
-      if (error instanceof AxiosError && error.response) {
-        const assasError = error as AsaasError;
-        const statusCode = assasError.response.status;
-
-        const errors = assasError.response.data.errors[0];
-        throw new HttpException(errors, statusCode);
-      }
-
-      throw new HttpException('Unknown error', 500);
-    }
+    return this.asaasHttpService.get<DigitableBillAsaasResponse>(
+      `${this.ASAAS_URL}/payments/${id}/identificationField`,
+      { access_token: this.ASAAS_AUTH },
+    );
   }
 
-  public async getpixQRCode(id: string): Promise<PixQrCodeAsaasResponse> {
-    const URL = `${this.ASAAS_URL}/payments/${id}/pixQrCode`;
-
-    try {
-      const response = await this.httpService.axiosRef.get(URL, {
-        headers: {
-          access_token: this.ASAAS_AUTH,
-        },
-      });
-
-      return response.data as PixQrCodeAsaasResponse;
-    } catch (error) {
-      if (error instanceof AxiosError && error.response) {
-        const assasError = error as AsaasError;
-        const statusCode = assasError.response.status;
-
-        const errors = assasError.response.data.errors[0];
-        throw new HttpException(errors, statusCode);
-      }
-
-      throw new HttpException('Unknown error', 500);
-    }
+  public async getPixQRCode(id: string): Promise<PixQrCodeAsaasResponse> {
+    return this.asaasHttpService.get<PixQrCodeAsaasResponse>(
+      `${this.ASAAS_URL}/payments/${id}/pixQrCode`,
+      { access_token: this.ASAAS_AUTH },
+    );
   }
 }

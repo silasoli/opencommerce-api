@@ -1,19 +1,29 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { AxiosResponse } from '@nestjs/terminus/dist/health-indicator/http/axios.interfaces';
+import { Injectable } from '@nestjs/common';
 import { CreateCustomerAsaasDto } from '../dto/customers/create-customers-asaas.dto';
 import { CreateCustomersAsaasResponse } from '../types/customers/CreateCustomersAsaasResponse.types';
 import { CustomersAsaasResponse } from '../types/customers/CustomersAsaasResponse.types';
 import { ListCustomersAsaasResponse } from '../types/customers/ListCustomersAsaasResponse.types';
-import { AsaasError } from '../types/asaas/AsaasError.types';
-import { AxiosError } from 'axios';
+import { AsaasHttpService } from './asaas.http.service';
+import { SERVER_ERRORS } from '../../common/constants/server.errors';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AsaasCustomersService {
-  private ASAAS_URL = `${process.env.ASAAS_URL}/customers`;
-  private ASAAS_AUTH = process.env.ASAAS_AUTH;
+  private readonly ASAAS_URL: string;
+  private readonly ASAAS_AUTH: string;
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly asaasHttpService: AsaasHttpService,
+  ) {
+    const asaasAuth = this.configService.get<string>('ASAAS_AUTH');
+    if (!asaasAuth) throw SERVER_ERRORS.NOT_FOUND_ASAAS_AUTH;
+    this.ASAAS_AUTH = asaasAuth;
+
+    const asaasUrl = this.configService.get<string>('ASAAS_URL');
+    if (!asaasUrl) throw SERVER_ERRORS.NOT_FOUND_ASAAS_URL;
+    this.ASAAS_URL = `${asaasUrl}/customers`;
+  }
 
   public async createOrUpdate(
     dto: CreateCustomerAsaasDto,
@@ -26,92 +36,38 @@ export class AsaasCustomersService {
   public async create(
     dto: CreateCustomerAsaasDto,
   ): Promise<CreateCustomersAsaasResponse> {
-    const URL = `${this.ASAAS_URL}`;
-
-    try {
-      const response = await this.httpService.axiosRef.post(
-        URL,
-        {
-          ...dto,
-        },
-        {
-          headers: {
-            access_token: this.ASAAS_AUTH,
-          },
-        },
-      );
-
-      return response.data as CreateCustomersAsaasResponse;
-    } catch (error) {
-      if (error instanceof AxiosError && error.response) {
-        const assasError = error as AsaasError;
-        const statusCode = assasError.response.status;
-
-        const errors = assasError.response.data.errors[0];
-        throw new HttpException(errors, statusCode);
-      }
-
-      throw new HttpException('Unknown error', 500);
-    }
+    return this.asaasHttpService.post<
+      CreateCustomersAsaasResponse,
+      CreateCustomerAsaasDto
+    >(this.ASAAS_URL, dto, { access_token: this.ASAAS_AUTH });
   }
 
   public async findOne(id: string): Promise<CustomersAsaasResponse> {
-    const URL = `${this.ASAAS_URL}/${id}`;
-
-    try {
-      const response = await this.httpService.axiosRef.get(URL, {
-        headers: {
-          access_token: this.ASAAS_AUTH,
-        },
-      });
-
-      return response.data as CustomersAsaasResponse;
-    } catch (error) {
-      if (error instanceof AxiosError && error.response) {
-        const assasError = error as AsaasError;
-        const statusCode = assasError.response.status;
-
-        const errors = assasError.response.data.errors[0];
-        throw new HttpException(errors, statusCode);
-      }
-
-      throw new HttpException('Unknown error', 500);
-    }
+    return this.asaasHttpService.get<CustomersAsaasResponse>(
+      `${this.ASAAS_URL}/${id}`,
+      { access_token: this.ASAAS_AUTH },
+    );
   }
 
   public async findOneBycpfCnpj(
     cpfCnpj: string,
   ): Promise<CustomersAsaasResponse | null> {
-    const URL = `${this.ASAAS_URL}?cpfCnpj=${cpfCnpj}`;
+    const response =
+      await this.asaasHttpService.get<ListCustomersAsaasResponse>(
+        `${this.ASAAS_URL}?cpfCnpj=${cpfCnpj}`,
+        { access_token: this.ASAAS_AUTH },
+      );
 
-    const response: AxiosResponse<ListCustomersAsaasResponse> =
-      await this.httpService.axiosRef.get(URL, {
-        headers: {
-          access_token: this.ASAAS_AUTH,
-        },
-      });
-
-    return !response.data.totalCount ? null : response.data.data[0];
+    return response.totalCount ? response.data[0] : null;
   }
 
   public async update(
     id: string,
     dto: CreateCustomerAsaasDto,
   ): Promise<CustomersAsaasResponse> {
-    const URL = `${this.ASAAS_URL}/${id}`;
-
-    const response = await this.httpService.axiosRef.put(
-      URL,
-      {
-        ...dto,
-      },
-      {
-        headers: {
-          access_token: this.ASAAS_AUTH,
-        },
-      },
-    );
-
-    return response.data as CustomersAsaasResponse;
+    return this.asaasHttpService.put<
+      CustomersAsaasResponse,
+      CreateCustomerAsaasDto
+    >(`${this.ASAAS_URL}/${id}`, dto, { access_token: this.ASAAS_AUTH });
   }
 }
