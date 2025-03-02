@@ -15,6 +15,8 @@ import {
   CreditCardTokenizeAsaasDto,
 } from '../dto/payments/credit-card-asaas.dto';
 import { CreditCardTokenizeAsaasResponse } from '../types/payments/CreditCardAsaasResponse.types';
+import { AsaasError } from '../types/asaas/AsaasError.types';
+import { AxiosError } from 'axios';
 
 @Injectable()
 export class AsaasPaymentsService {
@@ -41,11 +43,17 @@ export class AsaasPaymentsService {
         },
       );
 
-      return response.data;
+      return response.data as CreateChargeAsaasResponse;
     } catch (error) {
-      const statusCode = error.response.status;
-      const errors = error.response.data.errors[0];
-      throw new HttpException({ ...errors }, statusCode);
+      if (error instanceof AxiosError && error.response) {
+        const assasError = error as AsaasError;
+        const statusCode = assasError.response.status;
+
+        const errors = assasError.response.data.errors[0];
+        throw new HttpException(errors, statusCode);
+      }
+
+      throw new HttpException('Unknown error', 500);
     }
   }
 
@@ -59,11 +67,17 @@ export class AsaasPaymentsService {
         },
       });
 
-      return response.data;
+      return response.data as ChargeAsaasResponse;
     } catch (error) {
-      const statusCode = error.response.status;
-      const errors = error.response.data.errors[0];
-      throw new HttpException({ ...errors }, statusCode);
+      if (error instanceof AxiosError && error.response) {
+        const assasError = error as AsaasError;
+        const statusCode = assasError.response.status;
+
+        const errors = assasError.response.data.errors[0];
+        throw new HttpException(errors, statusCode);
+      }
+
+      throw new HttpException('Unknown error', 500);
     }
   }
 
@@ -90,11 +104,17 @@ export class AsaasPaymentsService {
         },
       );
 
-      return response.data;
+      return response.data as CreditCardTokenizeAsaasResponse;
     } catch (error) {
-      const statusCode = error.response.status;
-      const errors = error.response.data.errors[0];
-      throw new HttpException({ ...errors }, statusCode);
+      if (error instanceof AxiosError && error.response) {
+        const assasError = error as AsaasError;
+        const statusCode = assasError.response.status;
+
+        const errors = assasError.response.data.errors[0];
+        throw new HttpException(errors, statusCode);
+      }
+
+      throw new HttpException('Unknown error', 500);
     }
   }
 
@@ -124,11 +144,17 @@ export class AsaasPaymentsService {
         },
       );
 
-      return response.data;
+      return response.data as CreateChargeAsaasResponse;
     } catch (error) {
-      const statusCode = error.response.status;
-      const errors = error.response.data.errors[0];
-      throw new HttpException({ ...errors }, statusCode);
+      if (error instanceof AxiosError && error.response) {
+        const assasError = error as AsaasError;
+        const statusCode = assasError.response.status;
+
+        const errors = assasError.response.data.errors[0];
+        throw new HttpException(errors, statusCode);
+      }
+
+      throw new HttpException('Unknown error', 500);
     }
   }
 
@@ -144,11 +170,17 @@ export class AsaasPaymentsService {
         },
       });
 
-      return response.data;
+      return response.data as DigitableBillAsaasResponse;
     } catch (error) {
-      const statusCode = error.response.status;
-      const errors = error.response.data.errors[0];
-      throw new HttpException({ ...errors }, statusCode);
+      if (error instanceof AxiosError && error.response) {
+        const assasError = error as AsaasError;
+        const statusCode = assasError.response.status;
+
+        const errors = assasError.response.data.errors[0];
+        throw new HttpException(errors, statusCode);
+      }
+
+      throw new HttpException('Unknown error', 500);
     }
   }
 
@@ -162,11 +194,17 @@ export class AsaasPaymentsService {
         },
       });
 
-      return response.data;
+      return response.data as PixQrCodeAsaasResponse;
     } catch (error) {
-      const statusCode = error.response.status;
-      const errors = error.response.data.errors[0];
-      throw new HttpException({ ...errors }, statusCode);
+      if (error instanceof AxiosError && error.response) {
+        const assasError = error as AsaasError;
+        const statusCode = assasError.response.status;
+
+        const errors = assasError.response.data.errors[0];
+        throw new HttpException(errors, statusCode);
+      }
+
+      throw new HttpException('Unknown error', 500);
     }
   }
 }

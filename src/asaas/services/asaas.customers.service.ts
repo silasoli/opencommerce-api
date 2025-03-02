@@ -4,6 +4,9 @@ import { AxiosResponse } from '@nestjs/terminus/dist/health-indicator/http/axios
 import { CreateCustomerAsaasDto } from '../dto/customers/create-customers-asaas.dto';
 import { CreateCustomersAsaasResponse } from '../types/customers/CreateCustomersAsaasResponse.types';
 import { CustomersAsaasResponse } from '../types/customers/CustomersAsaasResponse.types';
+import { ListCustomersAsaasResponse } from '../types/customers/ListCustomersAsaasResponse.types';
+import { AsaasError } from '../types/asaas/AsaasError.types';
+import { AxiosError } from 'axios';
 
 @Injectable()
 export class AsaasCustomersService {
@@ -12,7 +15,9 @@ export class AsaasCustomersService {
 
   constructor(private readonly httpService: HttpService) {}
 
-  public async createOrUpdate(dto: CreateCustomerAsaasDto) {
+  public async createOrUpdate(
+    dto: CreateCustomerAsaasDto,
+  ): Promise<CreateCustomersAsaasResponse | CustomersAsaasResponse> {
     const exist = await this.findOneBycpfCnpj(dto.cpfCnpj);
     if (exist) return exist;
     return this.create(dto);
@@ -36,17 +41,21 @@ export class AsaasCustomersService {
         },
       );
 
-      return response.data;
+      return response.data as CreateCustomersAsaasResponse;
     } catch (error) {
-      const statusCode = error.response.status;
-      const errors = error.response.data.errors[0];
-      throw new HttpException({ ...errors }, statusCode);
+      if (error instanceof AxiosError && error.response) {
+        const assasError = error as AsaasError;
+        const statusCode = assasError.response.status;
+
+        const errors = assasError.response.data.errors[0];
+        throw new HttpException(errors, statusCode);
+      }
+
+      throw new HttpException('Unknown error', 500);
     }
   }
 
-  public async findOne(
-    id: string,
-  ): Promise<AxiosResponse<CustomersAsaasResponse>> {
+  public async findOne(id: string): Promise<CustomersAsaasResponse> {
     const URL = `${this.ASAAS_URL}/${id}`;
 
     try {
@@ -56,24 +65,31 @@ export class AsaasCustomersService {
         },
       });
 
-      return response.data as AxiosResponse<CustomersAsaasResponse>;
+      return response.data as CustomersAsaasResponse;
     } catch (error) {
-      const statusCode = error.response.status;
-      const errors = error.response.data.errors[0];
-      throw new HttpException({ ...errors }, statusCode);
+      if (error instanceof AxiosError && error.response) {
+        const assasError = error as AsaasError;
+        const statusCode = assasError.response.status;
+
+        const errors = assasError.response.data.errors[0];
+        throw new HttpException(errors, statusCode);
+      }
+
+      throw new HttpException('Unknown error', 500);
     }
   }
 
   public async findOneBycpfCnpj(
     cpfCnpj: string,
-  ): Promise<CustomersAsaasResponse> {
+  ): Promise<CustomersAsaasResponse | null> {
     const URL = `${this.ASAAS_URL}?cpfCnpj=${cpfCnpj}`;
 
-    const response = await this.httpService.axiosRef.get(URL, {
-      headers: {
-        access_token: this.ASAAS_AUTH,
-      },
-    });
+    const response: AxiosResponse<ListCustomersAsaasResponse> =
+      await this.httpService.axiosRef.get(URL, {
+        headers: {
+          access_token: this.ASAAS_AUTH,
+        },
+      });
 
     return !response.data.totalCount ? null : response.data.data[0];
   }
@@ -96,6 +112,6 @@ export class AsaasCustomersService {
       },
     );
 
-    return response.data;
+    return response.data as CustomersAsaasResponse;
   }
 }
