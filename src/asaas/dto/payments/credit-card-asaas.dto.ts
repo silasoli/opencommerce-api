@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BillingType } from './create-charge-asaas.dto';
 
-
 export class CreditCardHolderInfoAsaasDto {
   @ApiProperty({ required: true })
   name: string;
@@ -20,7 +19,6 @@ export class CreditCardHolderInfoAsaasDto {
   @ApiProperty({ required: true })
   mobilePhone?: string;
 }
-
 
 export class CreditCardTokenizeAsaasDto {
   @ApiProperty({ required: true })
