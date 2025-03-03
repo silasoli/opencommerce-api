@@ -1,40 +1,26 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { HttpService } from '@nestjs/axios';
-import { HttpException, Injectable } from '@nestjs/common';
-import { FindByPostalCodeResponseDto } from '../dto/postal-code-respnse.dto';
+import { Injectable } from '@nestjs/common';
+import { FindByPostalCodeResponseDto } from '../dto/postal-code-response.dto';
 import { FindOneResponse } from '../types/find-one-response.types';
-import { AxiosResponse } from '@nestjs/terminus/dist/health-indicator/http/axios.interfaces';
 import { ConfigService } from '@nestjs/config';
 import { SERVER_ERRORS } from '../../common/constants/server.errors';
+import { ViaCepHttpService } from './viacephttp.service';
 
 @Injectable()
 export class ViaCepService {
-  private VIACEP_URL: string | undefined;
+  private readonly VIACEP_URL: string;
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
+    private readonly viaCepHttpService: ViaCepHttpService,
   ) {
-    this.VIACEP_URL = this.configService.get<string>('VIA_CEP_URL');
+    this.VIACEP_URL = this.configService.get<string>('VIA_CEP_URL') ?? '';
 
     if (!this.VIACEP_URL) throw SERVER_ERRORS.NOT_FOUND_VIA_CEP;
   }
 
-  private async findOne(
-    postalCode: string,
-  ): Promise<AxiosResponse<FindOneResponse>> {
+  private async findOne(postalCode: string): Promise<FindOneResponse> {
     const URL = `${this.VIACEP_URL}/${postalCode}/json`;
-
-    try {
-      const response = await this.httpService.axiosRef.get(URL);
-
-      return response.data as AxiosResponse<FindOneResponse>;
-    } catch (error) {
-      // console.log(error.response.data)
-      const statusCode = error.response.status;
-      throw new HttpException({}, statusCode as number);
-    }
+    return this.viaCepHttpService.get<FindOneResponse>(URL);
   }
 
   public async findByPostalCode(

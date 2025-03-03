@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { FindOneResponse } from '../types/find-one-response.types';
-import { AxiosResponse } from '@nestjs/terminus/dist/health-indicator/http/axios.interfaces';
 
 export class FindByPostalCodeResponseDto {
-  constructor(entity: AxiosResponse<FindOneResponse>) {
+  constructor(entity: FindOneResponse) {
     Object.assign(this, entity);
   }
 
