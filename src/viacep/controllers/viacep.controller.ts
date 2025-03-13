@@ -1,8 +1,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { PostalCodeQueryDTO } from '../dto/postal-code-query.dto';
-import { FindByPostalCodeResponseDto } from '../dto/postal-code-respnse.dto';
 import { ViaCepService } from '../services/viacep.service';
+import { FindByPostalCodeResponseDto } from '../dto/postal-code-response.dto';
 
 @ApiTags('Via Cep')
 @Controller('via-cep')
