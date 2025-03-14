@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { MailerModule } from './mailer/mailer.module';
 import { ConfigModule } from '@nestjs/config';
 import { ViaCepModule } from './viacep/viacep.module';
+import { AsaasModule } from './asaas/asaas.module';
 import { MelhorEnvioModule } from './melhor-envio/melhor-envio.module';
 
 @Module({
@@ -12,6 +13,7 @@ import { MelhorEnvioModule } from './melhor-envio/melhor-envio.module';
     }),
     MailerModule,
     ViaCepModule,
+    AsaasModule,
     MelhorEnvioModule,
   ],
   controllers: [AppController],

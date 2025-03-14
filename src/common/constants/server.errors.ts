@@ -14,4 +14,12 @@ export const SERVER_ERRORS = {
     id: 'SRV-003',
     message: 'VIA CEP URL is missing in environment variables.',
   }),
+  NOT_FOUND_ASAAS_URL: new InternalServerErrorException({
+    id: 'SRV-004',
+    message: 'ASAAS URL is missing in environment variables.',
+  }),
+  NOT_FOUND_ASAAS_AUTH: new InternalServerErrorException({
+    id: 'SRV-006',
+    message: 'ASAAS AUTH is missing in environment variables.',
+  }),
 };
