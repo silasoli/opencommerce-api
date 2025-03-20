@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ViaCepModule } from './viacep/viacep.module';
 import { AsaasModule } from './asaas/asaas.module';
 import { MelhorEnvioModule } from './melhor-envio/melhor-envio.module';
+import { NuvemshopModule } from './nuvemshop/nuvemshop.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { MelhorEnvioModule } from './melhor-envio/melhor-envio.module';
     ViaCepModule,
     AsaasModule,
     MelhorEnvioModule,
+    NuvemshopModule,
   ],
   controllers: [AppController],
 })
