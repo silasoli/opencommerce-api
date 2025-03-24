@@ -37,5 +37,5 @@ export const SERVER_ERRORS = {
   NOT_FOUND_NUVEMSHOP_USER_AGENT: new InternalServerErrorException({
     id: 'SRV-010',
     message: 'NUVEMSHOP USER AGENT is missing in environment variables.',
-  })
+  }),
 };

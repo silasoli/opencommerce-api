@@ -1,5 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, HttpException } from '@nestjs/common';
+import { AxiosError } from 'axios';
+import { NuvemshopError } from '../types/NuvemshopError.type';
+import { NUVEMSHOP_ERRORS } from '../constants/nuvemshop.errors';
 
 @Injectable()
 export class NuvemshopHttpService {
@@ -25,8 +28,12 @@ export class NuvemshopHttpService {
     return this.request<T>('put', url, data, headers);
   }
 
+  async delete<T>(url: string, headers?: Record<string, string>): Promise<T> {
+    return this.request<T>('delete', url, undefined, headers);
+  }
+
   private async request<T>(
-    method: 'get' | 'post' | 'put',
+    method: 'get' | 'post' | 'put' | 'delete',
     url: string,
     data?: unknown,
     headers?: Record<string, string>,
@@ -40,25 +47,26 @@ export class NuvemshopHttpService {
       });
       return response.data;
     } catch (error) {
-      console.log(error);
-      throw new HttpException('erro nuvem', 400);
-
-      // this.handleError(error);
+      this.handleError(error);
     }
   }
 
-  // private handleError(error: unknown): never {
-  //   if (error instanceof AxiosError && error.response) {
-  //     const assasError = error as AsaasError;
-  //     const statusCode = assasError.response.status;
+  private handleError(error: unknown): never {
+    if (error instanceof AxiosError && error.response) {
+      const nuvemshopError = error as NuvemshopError;
+      const statusCode = nuvemshopError.response.status;
 
-  //     if (!assasError.response.data.errors) {
-  //       throw new HttpException(ASAAS_ERRORS.UNKNOWN_ERROR.message, statusCode);
-  //     }
+      if (!nuvemshopError.response.data) {
+        throw new HttpException(
+          NUVEMSHOP_ERRORS.UNKNOWN_ERROR.message,
+          statusCode,
+        );
+      }
 
-  //     const errors = assasError.response.data.errors[0];
-  //     throw new HttpException(errors, statusCode);
-  //   }
-  //   throw ASAAS_ERRORS.UNKNOWN_ERROR;
-  // }
+      const { description } = nuvemshopError.response.data;
+      throw new HttpException(description, statusCode);
+    }
+
+    throw NUVEMSHOP_ERRORS.UNKNOWN_ERROR;
+  }
 }

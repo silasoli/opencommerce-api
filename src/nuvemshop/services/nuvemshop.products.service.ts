@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NuvemshopHttpService } from './nuvemshop.http.service';
 import { SERVER_ERRORS } from '../../common/constants/server.errors';
-import { CreateProductNuvemShopDto } from '../dto/products/create-product.nuvemshop.dto';
-import { UpdateProductNuvemShopDto } from '../dto/products/update-product.nuvemshop.dto';
+// import { CreateProductNuvemShopDto } from '../dto/products/create-product.nuvemshop.dto';
+// import { UpdateProductNuvemShopDto } from '../dto/products/update-product.nuvemshop.dto';
 import { ProductResponseNuvemShopDto } from '../dto/products/product-response.nuvemshop.dto';
-import { ListProductsResponseNuvemShopDto } from '../dto/products/list-products-response.nuvemshop.dto';
+// import { ListProductsResponseNuvemShopDto } from '../dto/products/list-products-response.nuvemshop.dto';
+import { CreateProductNuvemShopDto } from '../dto/products/create-product.nuvemshop.dto';
 
 @Injectable()
 export class NuvemshopProductsService {
@@ -33,6 +34,8 @@ export class NuvemshopProductsService {
     this.NUVEMSHOP_URL = `${nuvemshopUrl}/${nuvemshopClientId}/products`;
   }
 
+  //esse metodo não sera utilizado pelo sistema, utilizaremos o dashboard para criar produtos
+  //esse meotodo exise apenas para testes
   async create(
     dto: CreateProductNuvemShopDto,
   ): Promise<ProductResponseNuvemShopDto> {
@@ -45,8 +48,8 @@ export class NuvemshopProductsService {
     });
   }
 
-  async getAll(): Promise<ListProductsResponseNuvemShopDto> {
-    return this.httpService.get<ListProductsResponseNuvemShopDto>(
+  async getAll(): Promise<ProductResponseNuvemShopDto[]> {
+    return this.httpService.get<ProductResponseNuvemShopDto[]>(
       this.NUVEMSHOP_URL,
       {
         authentication: `bearer ${this.NUVEMSHOP_AUTH}`,
@@ -65,27 +68,27 @@ export class NuvemshopProductsService {
     );
   }
 
-  async update(
-    id: number,
-    dto: UpdateProductNuvemShopDto,
-  ): Promise<ProductResponseNuvemShopDto> {
-    return this.httpService.put<
-      ProductResponseNuvemShopDto,
-      UpdateProductNuvemShopDto
-    >(`${this.NUVEMSHOP_URL}/${id}`, dto, {
-      authentication: `bearer ${this.NUVEMSHOP_AUTH}`,
-      'User-Agent': this.NS_USER_AGENT,
-    });
-  }
+  // async update(
+  //   id: number,
+  //   dto: UpdateProductNuvemShopDto,
+  // ): Promise<ProductResponseNuvemShopDto> {
+  //   return this.httpService.put<
+  //     ProductResponseNuvemShopDto,
+  //     UpdateProductNuvemShopDto
+  //   >(`${this.NUVEMSHOP_URL}/${id}`, dto, {
+  //     authentication: `bearer ${this.NUVEMSHOP_AUTH}`,
+  //     'User-Agent': this.NS_USER_AGENT,
+  //   });
+  // }
 
-  async delete(id: number): Promise<void> {
-    await this.httpService.put(
-      `${this.NUVEMSHOP_URL}/${id}`,
-      { active: false },
-      {
-        authentication: `bearer ${this.NUVEMSHOP_AUTH}`,
-        'User-Agent': this.NS_USER_AGENT,
-      },
-    );
-  }
+  // async delete(id: number): Promise<void> {
+  //   await this.httpService.put(
+  //     `${this.NUVEMSHOP_URL}/${id}`,
+  //     { active: false },
+  //     {
+  //       authentication: `bearer ${this.NUVEMSHOP_AUTH}`,
+  //       'User-Agent': this.NS_USER_AGENT,
+  //     },
+  //   );
+  // }
 }
