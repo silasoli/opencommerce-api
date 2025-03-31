@@ -81,9 +81,9 @@ describe('NuvemshopProductsService - Testes Reais com API', () => {
   //   expect(updatedProduct.variants[0].stock).toBe(5);
   // });
 
-  // it('deve desativar um produto na Nuvemshop', async () => {
-  //   const response = await service.delete(createdProduct.id);
+  it('deve desativar um produto na Nuvemshop', async () => {
+    const response = await service.delete(createdProduct.id);
 
-  //   expect(response).toBeUndefined();
-  // });
+    expect(response).toBeUndefined();
+  });
 });

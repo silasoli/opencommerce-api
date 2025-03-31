@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ProductImageNuvemShopDto } from './product-image.nuvemshop.dto';
-import { ProductVariantNuvemShopDto } from './product-variant.nuvemshop.dto';
+import { ProductVariantResponseNuvemShopDto } from './product-variant-response.nuvemshop.dto';
 
 export class ProductResponseNuvemShopDto {
   @ApiProperty({ description: 'Identificador único do produto' })
@@ -28,9 +28,9 @@ export class ProductResponseNuvemShopDto {
 
   @ApiProperty({
     description: 'Lista de variantes do produto',
-    type: [ProductVariantNuvemShopDto],
+    type: [ProductVariantResponseNuvemShopDto],
   })
-  variants: ProductVariantNuvemShopDto[];
+  variants: ProductVariantResponseNuvemShopDto[];
 
   @ApiProperty({
     description: 'Lista de imagens do produto',

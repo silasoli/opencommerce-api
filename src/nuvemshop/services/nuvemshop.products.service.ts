@@ -91,4 +91,11 @@ export class NuvemshopProductsService {
   //     },
   //   );
   // }
+
+  async delete(id: number): Promise<void> {
+    await this.httpService.delete(`${this.NUVEMSHOP_URL}/${id}`, {
+      authentication: `bearer ${this.NUVEMSHOP_AUTH}`,
+      'User-Agent': this.NS_USER_AGENT,
+    });
+  }
 }
