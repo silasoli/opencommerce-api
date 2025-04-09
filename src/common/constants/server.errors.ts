@@ -22,4 +22,20 @@ export const SERVER_ERRORS = {
     id: 'SRV-006',
     message: 'ASAAS AUTH is missing in environment variables.',
   }),
+  NOT_FOUND_NUVEMSHOP_AUTH: new InternalServerErrorException({
+    id: 'SRV-007',
+    message: 'NUVEMSHOP AUTH is missing in environment variables.',
+  }),
+  NOT_FOUND_NUVEMSHOP_URL: new InternalServerErrorException({
+    id: 'SRV-008',
+    message: 'NUVEMSHOP URL is missing in environment variables.',
+  }),
+  NOT_FOUND_NUVEMSHOP_CLIENT_ID: new InternalServerErrorException({
+    id: 'SRV-009',
+    message: 'NUVEMSHOP CLIENT ID is missing in environment variables.',
+  }),
+  NOT_FOUND_NUVEMSHOP_USER_AGENT: new InternalServerErrorException({
+    id: 'SRV-010',
+    message: 'NUVEMSHOP USER AGENT is missing in environment variables.',
+  }),
 };
