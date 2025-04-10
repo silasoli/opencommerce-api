@@ -6,6 +6,9 @@ import { ViaCepModule } from './viacep/viacep.module';
 import { AsaasModule } from './asaas/asaas.module';
 import { MelhorEnvioModule } from './melhor-envio/melhor-envio.module';
 import { NuvemshopModule } from './nuvemshop/nuvemshop.module';
+import { UsersModule } from './users/users.module';
+import { TypeOrmConfigModule } from './database/typeorm.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -17,6 +20,9 @@ import { NuvemshopModule } from './nuvemshop/nuvemshop.module';
     AsaasModule,
     MelhorEnvioModule,
     NuvemshopModule,
+    UsersModule,
+    TypeOrmConfigModule,
+    RolesModule,
   ],
   controllers: [AppController],
 })

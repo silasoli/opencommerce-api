@@ -5,6 +5,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
 import { SERVER_ERRORS } from './common/constants/server.errors';
+import { EntityNotFoundExceptionFilter } from './common/exception-filters/entity-not-found-exception.filter';
+import { AllExceptionsFilter } from './common/exception-filters/http-exception.filter';
+import { TypeORMExceptionFilter } from './common/exception-filters/typeorm-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,7 +23,11 @@ async function bootstrap() {
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
 
-  // app.useGlobalFilters(new AllExceptionsFilter(), new MongoExceptionFilter());
+  app.useGlobalFilters(
+    new AllExceptionsFilter(),
+    new TypeORMExceptionFilter(),
+    new EntityNotFoundExceptionFilter(),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('Open Commerce API')
