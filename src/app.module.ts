@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmConfigModule } from './database/typeorm.module';
 import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AuthModule } from './auth/auth.module';
     TypeOrmConfigModule,
     RolesModule,
     AuthModule,
+    ProductsModule,
   ],
   controllers: [AppController],
 })
