@@ -6,7 +6,7 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
+  // UseGuards,
   HttpCode,
 } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
@@ -21,7 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { UserResponseDto } from '../dto/user-response.dto';
 // import { AuthUserJwtGuard } from '../../auth/guards/auth-user-jwt.guard';
-import { RoleGuard } from '../../roles/guards/role.guard';
+// import { RoleGuard } from '../../roles/guards/role.guard';
 import { Role } from '../../roles/decorators/roles.decorator';
 import { IDPostgresQueryDTO } from '../../common/dto/id-postgres-query.dto';
 import { Roles } from '../../roles/enums/role.enum';
