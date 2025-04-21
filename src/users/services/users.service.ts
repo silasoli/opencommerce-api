@@ -89,7 +89,6 @@ export class UsersService {
     // if (!user) throw ERRORS.USERS.NOT_FOUND;
     if (!user) throw NotFoundException;
 
-
     return user.roles;
   }
 }
