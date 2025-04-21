@@ -9,6 +9,7 @@ import { NuvemshopModule } from './nuvemshop/nuvemshop.module';
 import { UsersModule } from './users/users.module';
 import { TypeOrmConfigModule } from './database/typeorm.module';
 import { RolesModule } from './roles/roles.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RolesModule } from './roles/roles.module';
     UsersModule,
     TypeOrmConfigModule,
     RolesModule,
+    AuthModule,
   ],
   controllers: [AppController],
 })

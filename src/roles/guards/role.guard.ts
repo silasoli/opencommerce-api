@@ -7,7 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { ROLE_KEY } from '../decorators/roles.decorator';
 import { RoleUtil } from '../utils/roles.util';
-// import { RequestWithUser } from '../../auth/interfaces/IUser-request.interface';
+import { RequestWithUser } from '../../auth/interfaces/IUser-request.interface';
 // import { ERRORS } from '../../common/utils/constants/errors';
 import { Roles } from '../enums/role.enum';
 
@@ -19,7 +19,7 @@ export class RoleGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<any>();
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
     const user = request.user;
 
     if (!user.id) return false;
