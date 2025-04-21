@@ -1,16 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  // UseGuards,
-  HttpCode,
-} from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, UseGuards } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
-import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import {
   ApiBearerAuth,
@@ -20,31 +9,20 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UserResponseDto } from '../dto/user-response.dto';
-// import { AuthUserJwtGuard } from '../../auth/guards/auth-user-jwt.guard';
-// import { RoleGuard } from '../../roles/guards/role.guard';
+import { AuthUserJwtGuard } from '../../auth/guards/auth-user-jwt.guard';
+import { RoleGuard } from '../../roles/guards/role.guard';
 import { Role } from '../../roles/decorators/roles.decorator';
 import { IDPostgresQueryDTO } from '../../common/dto/id-postgres-query.dto';
 import { Roles } from '../../roles/enums/role.enum';
+import { UserRequest } from '../../auth/decorators/user-request.decorator';
+import { UserRequestDTO } from '../../auth/dto/user-request.dto';
 
 @ApiBearerAuth()
-@ApiTags('Users')
-@Controller('users')
-// @UseGuards(AuthUserJwtGuard, RoleGuard)
-export class UsersController {
+@ApiTags('Users - Admin')
+@Controller('admin/users')
+@UseGuards(AuthUserJwtGuard, RoleGuard)
+export class UsersAdminController {
   constructor(private readonly usersService: UsersService) {}
-
-  @ApiOperation({ summary: 'Criar conta de usuário' })
-  @ApiResponse({
-    status: 200,
-    description: 'Conta de usuário criada com sucesso',
-    type: UserResponseDto,
-  })
-  @ApiBody({ type: CreateUserDto })
-  @Role([Roles.ADMIN])
-  @Post()
-  public async create(@Body() dto: CreateUserDto) {
-    return this.usersService.create(dto);
-  }
 
   @ApiOperation({ summary: 'Obter listagem de contas dos usuários' })
   @ApiResponse({
@@ -54,7 +32,7 @@ export class UsersController {
   })
   @Get()
   @Role([Roles.ADMIN])
-  findAll() {
+  public async findAll(): Promise<UserResponseDto[]> {
     return this.usersService.findAll();
   }
 
@@ -85,28 +63,28 @@ export class UsersController {
     description: 'Usuário não encontrado.',
   })
   @ApiBody({ type: UpdateUserDto })
-  @Role([Roles.ADMIN])
+  @Role([Roles.USER])
   @Patch(':id')
   public async update(
-    @Param() params: IDPostgresQueryDTO,
+    @UserRequest() user: UserRequestDTO,
     @Body() dto: UpdateUserDto,
   ) {
-    return this.usersService.update(params.id, dto);
+    return this.usersService.update(user._id, dto);
   }
 
-  @ApiOperation({ summary: 'Deletar conta de um usuário' })
-  @ApiResponse({
-    status: 204,
-    description: 'Conta do usuário deletada com sucesso',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Usuário não encontrado.',
-  })
-  @HttpCode(204)
-  @Role([Roles.ADMIN])
-  @Delete(':id')
-  public async remove(@Param() params: IDPostgresQueryDTO) {
-    return this.usersService.remove(params.id);
-  }
+  // @ApiOperation({ summary: 'Deletar conta de um usuário' })
+  // @ApiResponse({
+  //   status: 204,
+  //   description: 'Conta do usuário deletada com sucesso',
+  // })
+  // @ApiResponse({
+  //   status: 404,
+  //   description: 'Usuário não encontrado.',
+  // })
+  // @HttpCode(204)
+  // @Role([Roles.ADMIN])
+  // @Delete(':id')
+  // public async remove(@Param() params: IDPostgresQueryDTO) {
+  //   return this.usersService.remove(params.id);
+  // }
 }
