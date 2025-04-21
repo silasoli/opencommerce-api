@@ -6,6 +6,9 @@ export class PhoneQueryDTO {
   @ApiProperty({ required: true, description: 'Send a valid Phone' })
   @IsNotEmpty({ message: 'Phone cannot be empty.' })
   @Type(() => String)
-  @Transform(({ value }) => value.replace(/[^\d]+/g, ''))
+  @Transform(({ value }): string => {
+    if (typeof value === 'string') return value.replace(/[^\d]+/g, '');
+    return String(value);
+  })
   phone: string;
 }

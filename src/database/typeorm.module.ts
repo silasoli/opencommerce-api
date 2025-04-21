@@ -16,8 +16,11 @@ import { DataSource } from 'typeorm';
           await dataSource.initialize();
           logger.verbose('Database connected successfully');
           return dataSource;
-        } catch (error) {
-          logger.error('Error connecting to database', error.stack);
+        } catch (error: unknown) {
+          logger.error(
+            'Error connecting to database',
+            error instanceof Error ? error.stack : undefined,
+          );
           throw error;
         }
       },

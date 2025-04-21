@@ -6,39 +6,54 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+
+interface ErrorResponse {
+  statusCode: number;
+  message: string | string[];
+  error?: string;
+}
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
 
-  catch(exception: unknown, host: ArgumentsHost) {
-    console.log(exception);
+  catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
 
-    const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+    const errorResponse: ErrorResponse = {
+      statusCode: status,
+      message: ['Internal server error'],
+    };
 
-    const errorObj: any =
-      exception instanceof HttpException ? exception.getResponse() : exception;
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      const responseData = exception.getResponse();
+
+      if (typeof responseData === 'string') {
+        errorResponse.message = [responseData];
+      } else if (typeof responseData === 'object' && responseData !== null) {
+        const { message, error } = responseData as {
+          message: string | string[];
+          error?: string;
+        };
+
+        errorResponse.message = Array.isArray(message) ? message : [message];
+        if (error) errorResponse.error = error;
+      }
+    }
 
     this.logger.error(
-      `Http Status: ${status} Error Message: ${JSON.stringify(errorObj)}`,
+      `Http Status: ${status} Error Message: ${JSON.stringify(errorResponse)}`,
     );
-
-    if (typeof errorObj.message === 'string') {
-      const messageValue = errorObj.message;
-      errorObj.message = [messageValue];
-    }
 
     response.status(status).json({
       timestamp: new Date().toISOString(),
       path: request.url,
-      error: errorObj,
+      error: errorResponse,
     });
   }
 }

@@ -11,13 +11,16 @@ import { QueryFailedError, TypeORMError } from 'typeorm';
 export class TypeORMExceptionFilter implements ExceptionFilter {
   catch(exception: QueryFailedError | TypeORMError, host: ArgumentsHost) {
     console.log(exception);
+
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
 
     const isQueryFailedError = exception instanceof QueryFailedError;
+    const hasCode =
+      isQueryFailedError && isObject(exception) && 'code' in exception;
 
-    if (!isQueryFailedError || !exception['code']) {
+    if (!hasCode) {
       return this.sendErrorResponse(
         response,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -27,7 +30,8 @@ export class TypeORMExceptionFilter implements ExceptionFilter {
       );
     }
 
-    const errorInfo = this.getErrorInfo(exception['code']);
+    const errorCode = (exception as unknown as { code: string }).code;
+    const errorInfo = this.getErrorInfo(errorCode);
     const field = errorInfo.extractFieldFromErrorMessage(exception);
     const message = field ? [errorInfo.messageByField(field)] : [];
 
@@ -51,8 +55,8 @@ export class TypeORMExceptionFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
       path: path,
       error: {
-        message: message,
-        error: error,
+        message,
+        error,
         statusCode: status,
       },
     });
@@ -68,6 +72,10 @@ export class TypeORMExceptionFilter implements ExceptionFilter {
       }
     );
   }
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }
 
 export type TypeORMException = {
@@ -92,8 +100,11 @@ export const TypeORMErrors: Record<string, TypeORMException> = {
     extractFieldFromErrorMessage: (
       exception: QueryFailedError | TypeORMError,
     ): string | undefined => {
-      const match = exception['detail'].match(/Key \(([^)]+)\)=/);
-      return match ? match[1] : undefined;
+      if (isObject(exception) && typeof exception['detail'] === 'string') {
+        const match = exception['detail'].match(/Key \(([^)]+)\)=/);
+        return match?.[1];
+      }
+      return undefined;
     },
   },
   '23502': {
@@ -108,10 +119,13 @@ export const TypeORMErrors: Record<string, TypeORMException> = {
     extractFieldFromErrorMessage: (
       exception: QueryFailedError | TypeORMError,
     ): string | undefined => {
-      const match = exception.message.match(
-        /null value in column "(.*?)" of relation/,
-      );
-      return match ? match[1] : undefined;
+      if (isObject(exception) && typeof exception['message'] === 'string') {
+        const match = exception['message'].match(
+          /null value in column "(.*?)" of relation/,
+        );
+        return match?.[1];
+      }
+      return undefined;
     },
   },
   '42P01': {
@@ -120,10 +134,7 @@ export const TypeORMErrors: Record<string, TypeORMException> = {
     messageByField: (): string => {
       return TypeORMExceptionMessages['42P01'].default;
     },
-    extractFieldFromErrorMessage: (
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      exception: QueryFailedError | TypeORMError,
-    ): undefined => {
+    extractFieldFromErrorMessage: (): undefined => {
       return undefined;
     },
   },
