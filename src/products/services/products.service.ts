@@ -1,12 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { NuvemshopProductsService } from '../../nuvemshop/services/nuvemshop.products.service';
+import { ProductResponseNuvemShopDto } from '../../nuvemshop/dto/products/product-response.nuvemshop.dto';
 
 @Injectable()
 export class ProductsService {
-  findAll() {
-    return `This action returns all products`;
+  constructor(
+    private readonly nuvemshopProductsService: NuvemshopProductsService,
+  ) {}
+
+  public async findAll(): Promise<ProductResponseNuvemShopDto[]> {
+    return this.nuvemshopProductsService.getAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  public async findOne(id: number): Promise<ProductResponseNuvemShopDto> {
+    return this.nuvemshopProductsService.getById(id);
   }
 }

@@ -1,5 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+class InventoryLevelDto {
+  @ApiProperty()
+  id: number;
+
+  @ApiProperty()
+  variant_id: number;
+
+  @ApiProperty()
+  location_id: string;
+
+  @ApiProperty()
+  stock: number;
+}
+
 export class ProductVariantResponseNuvemShopDto {
   @ApiProperty()
   id: number;
@@ -70,19 +84,7 @@ export class ProductVariantResponseNuvemShopDto {
   @ApiProperty({
     description: 'Níveis de estoque por localização',
     required: false,
-    type: () => [
-      {
-        id: Number,
-        variant_id: Number,
-        location_id: String,
-        stock: Number,
-      },
-    ],
+    type: () => [InventoryLevelDto],
   })
-  inventory_levels?: {
-    id: number;
-    variant_id: number;
-    location_id: string;
-    stock: number;
-  }[];
+  inventory_levels?: InventoryLevelDto[];
 }
