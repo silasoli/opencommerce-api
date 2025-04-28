@@ -3,6 +3,7 @@ import { NuvemshopHttpService } from './services/nuvemshop.http.service';
 import { NuvemshopProductsService } from './services/nuvemshop.products.service';
 import { HttpModule } from '@nestjs/axios';
 import { NuvemshopOrdersService } from './services/nuvemshop.orders.service';
+import { NuvemshopCustomersService } from './services/nuvemshop.customers.service';
 
 @Global()
 @Module({
@@ -11,7 +12,12 @@ import { NuvemshopOrdersService } from './services/nuvemshop.orders.service';
     NuvemshopHttpService,
     NuvemshopProductsService,
     NuvemshopOrdersService,
+    NuvemshopCustomersService,
   ],
-  exports: [NuvemshopProductsService, NuvemshopOrdersService],
+  exports: [
+    NuvemshopProductsService,
+    NuvemshopOrdersService,
+    NuvemshopCustomersService,
+  ],
 })
 export class NuvemshopModule {}

@@ -7,6 +7,8 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UserResponseDto } from '../dto/user-response.dto';
 import { Roles } from '../../roles/enums/role.enum';
+import { NuvemshopCustomersService } from '../../nuvemshop/services/nuvemshop.customers.service';
+import { AsaasCustomersService } from '../../asaas/services/asaas.customers.service';
 // import { ERRORS } from '../../common/utils/constants/errors';
 
 @Injectable()
@@ -14,6 +16,8 @@ export class UsersService {
   constructor(
     @InjectRepository(Users)
     private readonly repository: Repository<Users>,
+    private readonly nuvemshopCustomersService: NuvemshopCustomersService,
+    private readonly asaasCustomersService: AsaasCustomersService
   ) {}
 
   private async transformBody(dto: CreateUserDto | UpdateUserDto) {
@@ -34,6 +38,21 @@ export class UsersService {
     const rawData = { ...dto, roles: [Roles.USER] };
 
     await this.transformBody(rawData);
+
+    //todo: verificar se o email ja esta cadastrado ou fluxo caso de erro no cadastro
+    const nuvemshopCustomer = await this.nuvemshopCustomersService.create({
+      name: rawData.username,
+      email: rawData.email,
+      phone: rawData.mobilePhone,
+      // addresses
+    });
+    // rawData.nuvemshop_customer_id = nuvemshopCustomer.id;
+
+    const asaasCustomer = await this.asaasCustomersService.create({
+      name: rawData.username,
+      ...rawData,
+    });
+    // rawData.asaas_customer_id = asaasCustomer.id;
 
     const createdUser = this.repository.create(rawData);
     const savedUser = await this.repository.save(createdUser);
