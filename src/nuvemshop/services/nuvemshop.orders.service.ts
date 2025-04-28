@@ -53,6 +53,19 @@ export class NuvemshopOrdersService {
     );
   }
 
+  async getAllByCustomerId(id: string): Promise<OrderResponseNuvemShopDto[]> {
+    const params = new URLSearchParams();
+    params.append('customer_ids', id.toString());
+
+    return this.httpService.get<OrderResponseNuvemShopDto[]>(
+      `${this.NUVEMSHOP_URL}?${params.toString()}`,
+      {
+        Authentication: `bearer ${this.NUVEMSHOP_AUTH}`,
+        'User-Agent': this.NS_USER_AGENT,
+      },
+    );
+  }
+
   async getById(id: number): Promise<OrderResponseNuvemShopDto> {
     return this.httpService.get<OrderResponseNuvemShopDto>(
       `${this.NUVEMSHOP_URL}/${id}`,

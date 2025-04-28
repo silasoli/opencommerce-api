@@ -30,6 +30,7 @@ export class UsersService {
   }
 
   public async create(dto: CreateUserDto): Promise<UserResponseDto> {
+    //todo: ao criar usuario salvar ele no assas e nuvem shopping e salvar id dele
     const rawData = { ...dto, roles: [Roles.USER] };
 
     await this.transformBody(rawData);

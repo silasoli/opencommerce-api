@@ -68,6 +68,19 @@ export class NuvemshopProductsService {
     );
   }
 
+  async getVariantById(
+    productId: number,
+    variantId: number,
+  ): Promise<ProductResponseNuvemShopDto> {
+    return this.httpService.get<ProductResponseNuvemShopDto>(
+      `${this.NUVEMSHOP_URL}/${productId}/variants/${variantId}`,
+      {
+        authentication: `bearer ${this.NUVEMSHOP_AUTH}`,
+        'User-Agent': this.NS_USER_AGENT,
+      },
+    );
+  }
+
   // async update(
   //   id: number,
   //   dto: UpdateProductNuvemShopDto,
