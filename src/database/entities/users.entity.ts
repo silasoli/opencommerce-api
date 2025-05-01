@@ -4,8 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { Roles } from '../../roles/enums/role.enum';
+import { Address } from './address.entity';
 
 @Entity()
 export class Users {
@@ -20,6 +23,16 @@ export class Users {
 
   @Column({ select: false })
   password: string;
+
+  @Column({ unique: true })
+  nuvemshop_customer_id: number;
+
+  @Column({ unique: true })
+  asaas_customer_id: string;
+
+  @OneToOne(() => Address, (address) => address.user, { cascade: true }) 
+  @JoinColumn() 
+  address: Address;
 
   @Column({
     type: 'simple-array',

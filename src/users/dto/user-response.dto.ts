@@ -1,24 +1,42 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Users } from '../../database/entities/user.entity';
+import { Users } from '../../database/entities/users.entity';
 
 export class UserResponseDto {
   constructor(user: Users) {
-    const { id, username, email } = user;
+    const {
+      id,
+      username,
+      email,
+      // asaas_customer_id,
+      // nuvemshop_customer_id,
+      password,    
+    } = user;
 
-    return { id: String(id), username, email };
+    return {
+      id: String(id),
+      username,
+      email,
+      // asaas_customer_id,
+      // nuvemshop_customer_id
+      password,
+    };
   }
 
   @ApiProperty({ required: true })
   id: string;
 
   @ApiProperty({ required: true })
-  @IsString()
-  @IsNotEmpty({ message: 'É necessário informar o email do usuário.' })
   username: string;
 
   @ApiProperty({ required: true })
-  @IsNotEmpty({ message: 'É necessário informar o email do usuário.' })
-  @IsEmail({}, { message: 'O email informado deve ser válido' })
   email: string;
+
+  // @ApiProperty({ required: true })
+  // asaas_customer_id: string;
+
+  // @ApiProperty({ required: true })
+  // nuvemshop_customer_id: number;
+
+  @ApiProperty({ required: true })
+  password: string;
 }

@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Users } from '../../database/entities/user.entity';
+import { Injectable, Logger } from '@nestjs/common';
+import { Users } from '../../database/entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -10,9 +10,15 @@ import { Roles } from '../../roles/enums/role.enum';
 import { NuvemshopCustomersService } from '../../nuvemshop/services/nuvemshop.customers.service';
 import { AsaasCustomersService } from '../../asaas/services/asaas.customers.service';
 import { USERS_ERRORS } from '../constants/users.errors';
+import {
+  FindOrCreateCustomerInAsaasReturn,
+  FindOrCreateCustomerInNuvemshopReturn,
+} from '../types/users.type';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(Users)
     private readonly repository: Repository<Users>,
@@ -34,7 +40,7 @@ export class UsersService {
 
   private async findOrCreateCustomerInNuvemshop(
     dto: CreateUserDto,
-  ): Promise<{ id: number; wasCreated: boolean }> {
+  ): Promise<FindOrCreateCustomerInNuvemshopReturn> {
     const existingCustomer = await this.nuvemshopCustomersService.getByEmail(
       dto.email,
     );
@@ -47,12 +53,12 @@ export class UsersService {
       phone: dto.mobilePhone,
       addresses: [
         {
-          address: dto.address,
-          city: dto.city,
+          address: dto.address.address,
+          city: dto.address.city,
           country: 'Brasil',
-          number: dto.addressNumber,
-          province: dto.province,
-          zipcode: dto.postalCode,
+          number: dto.address.addressNumber,
+          province: dto.address.province,
+          zipcode: dto.address.postalCode,
         },
       ],
     });
@@ -62,7 +68,7 @@ export class UsersService {
 
   private async findOrCreateCustomerInAsaas(
     dto: CreateUserDto,
-  ): Promise<{ id: string; wasCreated: boolean }> {
+  ): Promise<FindOrCreateCustomerInAsaasReturn> {
     const existingCustomer = await this.asaasCustomersService.findOneBycpfCnpj(
       dto.cpfCnpj,
     );
@@ -71,7 +77,15 @@ export class UsersService {
 
     const created = await this.asaasCustomersService.create({
       name: dto.username,
-      ...dto,
+      email: dto.email,
+      cpfCnpj: dto.cpfCnpj,
+      mobilePhone: dto.mobilePhone,
+      address: dto.address.address,
+      city: dto.address.city,
+      addressNumber: dto.address.addressNumber,
+      province: dto.address.province,
+      postalCode: dto.address.postalCode,
+      state: dto.address.state,
     });
 
     return { id: created.id, wasCreated: true };
@@ -79,20 +93,16 @@ export class UsersService {
 
   private async rollbackUserCreation(
     savedUser: Users | null,
-    nuvemshopCustomer: { id: number; wasCreated: boolean } | null,
-    asaasCustomer: { id: string; wasCreated: boolean } | null,
+    nuvemshopCustomer: FindOrCreateCustomerInNuvemshopReturn | null,
+    asaasCustomer: FindOrCreateCustomerInAsaasReturn | null,
   ) {
-    if (savedUser?.id) {
-      await this.repository.delete({ id: savedUser.id });
-    }
+    if (savedUser?.id) await this.repository.delete({ id: savedUser.id });
 
-    if (nuvemshopCustomer?.wasCreated) {
+    if (nuvemshopCustomer?.wasCreated)
       await this.nuvemshopCustomersService.delete(nuvemshopCustomer.id);
-    }
 
-    if (asaasCustomer?.wasCreated) {
+    if (asaasCustomer?.wasCreated)
       await this.asaasCustomersService.delete(asaasCustomer.id);
-    }
   }
 
   public async create(dto: CreateUserDto): Promise<UserResponseDto> {
@@ -100,21 +110,25 @@ export class UsersService {
     await this.transformBody(rawData);
 
     let savedUser: Users | null = null;
-    let nuvemshopCustomer: { id: number; wasCreated: boolean } | null = null;
-    let asaasCustomer: { id: string; wasCreated: boolean } | null = null;
+    let nuvemshopCustomer: FindOrCreateCustomerInNuvemshopReturn | null = null;
+    let asaasCustomer: FindOrCreateCustomerInAsaasReturn | null = null;
 
     try {
       nuvemshopCustomer = await this.findOrCreateCustomerInNuvemshop(dto);
-      // rawData.nuvemshop_customer_id = nuvemshopCustomer.id;
 
       asaasCustomer = await this.findOrCreateCustomerInAsaas(dto);
-      // rawData.asaas_customer_id = asaasCustomer.id;
 
-      const createdUser = this.repository.create(rawData);
+      const createdUser = this.repository.create({
+        ...rawData,
+        nuvemshop_customer_id: nuvemshopCustomer.id,
+        asaas_customer_id: asaasCustomer.id,
+      });
+
       savedUser = await this.repository.save(createdUser);
 
       return new UserResponseDto(savedUser);
     } catch (error) {
+      this.logger.error(error);
       await this.rollbackUserCreation(
         savedUser,
         nuvemshopCustomer,

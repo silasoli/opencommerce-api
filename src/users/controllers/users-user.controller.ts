@@ -1,6 +1,5 @@
-import { Controller, Get, Post, Body, Patch, UseGuards } from '@nestjs/common';
+import { Controller, Get, Body, Patch, UseGuards } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
-import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import {
   ApiBearerAuth,
@@ -23,19 +22,6 @@ import { UserRequestDTO } from '../../auth/dto/user-request.dto';
 @UseGuards(AuthUserJwtGuard, RoleGuard)
 export class UsersUserController {
   constructor(private readonly usersService: UsersService) {}
-
-  @ApiOperation({ summary: 'Criar conta' })
-  @ApiResponse({
-    status: 200,
-    description: 'Conta criada com sucesso',
-    type: UserResponseDto,
-  })
-  @ApiBody({ type: CreateUserDto })
-  @Role([Roles.USER])
-  @Post()
-  public async create(@Body() dto: CreateUserDto): Promise<UserResponseDto> {
-    return this.usersService.create(dto);
-  }
 
   @ApiOperation({ summary: 'Obter conta logada' })
   @ApiResponse({

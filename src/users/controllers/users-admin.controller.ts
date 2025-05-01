@@ -1,4 +1,12 @@
-import { Controller, Get, Body, Patch, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Param,
+  UseGuards,
+  Post,
+} from '@nestjs/common';
 import { UsersService } from '../services/users.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import {
@@ -16,6 +24,7 @@ import { IDPostgresQueryDTO } from '../../common/dto/id-postgres-query.dto';
 import { Roles } from '../../roles/enums/role.enum';
 import { UserRequest } from '../../auth/decorators/user-request.decorator';
 import { UserRequestDTO } from '../../auth/dto/user-request.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 
 @ApiBearerAuth()
 @ApiTags('Users - Admin')
@@ -23,6 +32,19 @@ import { UserRequestDTO } from '../../auth/dto/user-request.dto';
 @UseGuards(AuthUserJwtGuard, RoleGuard)
 export class UsersAdminController {
   constructor(private readonly usersService: UsersService) {}
+
+  @ApiOperation({ summary: 'Criar conta' })
+  @ApiResponse({
+    status: 200,
+    description: 'Conta criada com sucesso',
+    type: UserResponseDto,
+  })
+  @ApiBody({ type: CreateUserDto })
+  @Role([Roles.ADMIN])
+  @Post()
+  public async create(@Body() dto: CreateUserDto): Promise<UserResponseDto> {
+    return this.usersService.create(dto);
+  }
 
   @ApiOperation({ summary: 'Obter listagem de contas dos usuários' })
   @ApiResponse({
