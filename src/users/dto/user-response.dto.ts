@@ -9,7 +9,7 @@ export class UserResponseDto {
       email,
       // asaas_customer_id,
       // nuvemshop_customer_id,
-      password,    
+      password,
     } = user;
 
     return {
