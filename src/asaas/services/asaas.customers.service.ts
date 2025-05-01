@@ -70,4 +70,10 @@ export class AsaasCustomersService {
       CreateCustomerAsaasDto
     >(`${this.ASAAS_URL}/${id}`, dto, { access_token: this.ASAAS_AUTH });
   }
+
+  public async delete(id: string): Promise<void> {
+    await this.asaasHttpService.delete(`${this.ASAAS_URL}/${id}`, {
+      access_token: this.ASAAS_AUTH,
+    });
+  }
 }

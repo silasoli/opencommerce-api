@@ -28,8 +28,12 @@ export class AsaasHttpService {
     return this.request<T>('put', url, data, headers);
   }
 
+  async delete<T>(url: string, headers?: Record<string, string>): Promise<T> {
+    return this.request<T>('delete', url, undefined, headers);
+  }
+
   private async request<T>(
-    method: 'get' | 'post' | 'put',
+    method: 'get' | 'post' | 'put' | 'delete',
     url: string,
     data?: unknown,
     headers?: Record<string, string>,

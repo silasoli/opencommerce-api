@@ -78,6 +78,16 @@ export class NuvemshopCustomersService {
     );
   }
 
+  async getByEmail(email: string): Promise<CustomerResponseNuvemShopDto> {
+    return this.httpService.get<CustomerResponseNuvemShopDto>(
+      `${this.NUVEMSHOP_URL}?email=${email}`,
+      {
+        authentication: `bearer ${this.NUVEMSHOP_AUTH}`,
+        'User-Agent': this.NS_USER_AGENT,
+      },
+    );
+  }
+
   // esse método só funcionará se o cliente não tiver pedidos
   async delete(id: number): Promise<void> {
     await this.httpService.delete<void>(`${this.NUVEMSHOP_URL}/${id}`, {
