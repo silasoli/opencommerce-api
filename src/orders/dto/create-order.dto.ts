@@ -9,12 +9,6 @@ import {
   IsString,
 } from 'class-validator';
 
-// class CustomerDto {
-//   @ApiProperty({ description: 'ID do cliente na Nuvemshop', required: false })
-//   @IsOptional()
-//   id?: number;
-// }
-
 class ProductItemDto {
   @ApiProperty({ description: 'ID do produto' })
   @IsNotEmpty()
@@ -43,7 +37,74 @@ class ShippingOptionDto {
   delivery_estimate?: string;
 }
 
-class ShippingAddressDto {
+class AddressNuvemshopDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  first_name: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  last_name: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  address: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  number: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  floor?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  locality?: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  city: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  province: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  country: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  zipcode: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  phone?: string;
+}
+
+class FullShippingAddressDto {
+  @ApiProperty({ description: 'Primeiro nome do destinatário' })
+  @IsNotEmpty()
+  @IsString()
+  first_name: string;
+
+  @ApiProperty({ description: 'Sobrenome do destinatário' })
+  @IsNotEmpty()
+  @IsString()
+  last_name: string;
+
   @ApiProperty({ description: 'Endereço' })
   @IsNotEmpty()
   @IsString()
@@ -91,16 +152,6 @@ class ShippingAddressDto {
 }
 
 export class CreateOrderDto {
-  //   @ApiProperty({
-  //     description: 'Cliente associado ao pedido',
-  //     type: CustomerDto,
-  //     required: false,
-  //   })
-  //   @IsOptional()
-  //   @ValidateNested()
-  //   @Type(() => CustomerDto)
-  //   customer?: CustomerDto;
-
   @ApiProperty({ description: 'Lista de produtos', type: [ProductItemDto] })
   @IsNotEmpty()
   @IsArray()
@@ -109,23 +160,19 @@ export class CreateOrderDto {
   @Type(() => ProductItemDto)
   products: ProductItemDto[];
 
-  @ApiProperty({
-    description: 'Opção de envio selecionada',
-    type: ShippingOptionDto,
-    required: false,
-  })
+  @ApiProperty({ type: ShippingOptionDto, required: false })
   @IsOptional()
   @ValidateNested()
   @Type(() => ShippingOptionDto)
   shipping_option: ShippingOptionDto;
 
-  @ApiProperty({
-    description: 'Endereço de envio',
-    type: ShippingAddressDto,
-    required: false,
-  })
-  @IsOptional()
+  @ApiProperty({ type: FullShippingAddressDto })
   @ValidateNested()
-  @Type(() => ShippingAddressDto)
-  shipping_address: ShippingAddressDto;
+  @Type(() => FullShippingAddressDto)
+  shipping_address: FullShippingAddressDto;
+
+  @ApiProperty({ type: AddressNuvemshopDto })
+  @ValidateNested()
+  @Type(() => AddressNuvemshopDto)
+  billing_address: AddressNuvemshopDto;
 }
