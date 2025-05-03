@@ -29,7 +29,6 @@ import { IDOrderDTO } from '../dto/id-order.dto';
 
 @ApiBearerAuth()
 @ApiTags('Orders - User')
-@Controller('orders')
 @Controller('user/orders')
 @UseGuards(AuthUserJwtGuard, RoleGuard)
 export class OrdersController {

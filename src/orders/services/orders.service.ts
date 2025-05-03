@@ -64,6 +64,19 @@ export class OrdersService {
     return selectedShipping;
   }
 
+  public async estimateShipping(dto: {
+    products: ProductItemDto[];
+    postal_code: string;
+  }) {
+    //testar product not found
+    const variants = await this.findVariantsByOrder(dto.products);
+
+    return this.melhorEnvioService.seekDeliveryQuote({
+      products: variants,
+      postal_code: dto.postal_code,
+    });
+  }
+
   public async create(
     userId: string,
     dto: CreateOrderDto,
