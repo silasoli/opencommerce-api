@@ -6,6 +6,7 @@ import {
   IsPostalCode,
   ValidateNested,
 } from 'class-validator';
+import { ProductsVariantsToShipping } from '../../../orders/types/orders.type';
 // import { ProductDto } from '../../../orders/dto/order/product.dto';
 
 export class MakeBudgetMelhorEnvioDto {
@@ -20,5 +21,5 @@ export class MakeBudgetMelhorEnvioDto {
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   // @Type(() => ProductDto)
-  products: unknown[];
+  products: ProductsVariantsToShipping[];
 }

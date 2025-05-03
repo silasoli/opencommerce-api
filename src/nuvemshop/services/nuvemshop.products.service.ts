@@ -7,6 +7,7 @@ import { SERVER_ERRORS } from '../../common/constants/server.errors';
 import { ProductResponseNuvemShopDto } from '../dto/products/product-response.nuvemshop.dto';
 // import { ListProductsResponseNuvemShopDto } from '../dto/products/list-products-response.nuvemshop.dto';
 import { CreateProductNuvemShopDto } from '../dto/products/create-product.nuvemshop.dto';
+import { ProductVariantResponseNuvemShopDto } from '../dto/products/product-variant-response.nuvemshop.dto';
 
 @Injectable()
 export class NuvemshopProductsService {
@@ -71,8 +72,8 @@ export class NuvemshopProductsService {
   async getVariantById(
     productId: number,
     variantId: number,
-  ): Promise<ProductResponseNuvemShopDto> {
-    return this.httpService.get<ProductResponseNuvemShopDto>(
+  ): Promise<ProductVariantResponseNuvemShopDto> {
+    return this.httpService.get<ProductVariantResponseNuvemShopDto>(
       `${this.NUVEMSHOP_URL}/${productId}/variants/${variantId}`,
       {
         authentication: `bearer ${this.NUVEMSHOP_AUTH}`,

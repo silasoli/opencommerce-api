@@ -3,6 +3,10 @@ import { MelhorEnvioHttpService } from './melhor-envio-http.service';
 import { ConfigService } from '@nestjs/config';
 import { ShipmentCalculateMelhorEnvioResponse } from '../types/shipment-calculate.types';
 import { ShipmentCalculateMelhorEnvioDto } from '../dto/melhor-envio/shipment-calculate.dto';
+import { MakeBudgetMelhorEnvioDto } from '../dto/melhor-envio/make-budget.dto';
+import { ProductsToSendType } from '../types/shipping.types';
+import { ShipmentCalculateMelhorEnvioResponseDto } from '../dto/shipment-calculate-response.dto';
+import { ProductsVariantsToShipping } from '../../orders/types/orders.type';
 
 @Injectable()
 export class MelhorEnvioService {
@@ -27,6 +31,70 @@ export class MelhorEnvioService {
     }
   }
 
+  private removeShipmentErrors(
+    shipment: ShipmentCalculateMelhorEnvioResponse[],
+  ) {
+    return shipment.filter((item) => !item.error);
+  }
+
+  // private async calculateShipment(
+  //   dto: ShipmentCalculateMelhorEnvioDto,
+  // ): Promise<ShipmentCalculateMelhorEnvioResponse[]> {
+  //   const data = {
+  //     from: { postal_code: this.MELHOR_ENVIO_FROM },
+  //     to: { postal_code: dto.postal_code },
+  //     products: dto.products,
+  //     options: { receipt: false, own_hand: false },
+  //     services: '1,2,3,4',
+  //   };
+
+  //   const response = await this.melhorEnvioHttpService.post<
+  //     ShipmentCalculateMelhorEnvioResponse[],
+  //     typeof data
+  //   >(`${this.MELHOR_ENVIO_URL}/v2/me/shipment/calculate`, data, {
+  //     Authorization: this.AUTH,
+  //   });
+
+  //   return this.removeShipmentErrors(response);
+  // }
+
+  private formatProductsToShipping(
+    shippingProducs: ProductsVariantsToShipping[],
+  ): ProductsToSendType[] {
+    return shippingProducs.map((shippingItem) => {
+      return {
+        id: String(shippingItem.variant.id),
+        quantity: shippingItem.quantity,
+        width: Number(shippingItem.variant.width),
+        height: Number(shippingItem.variant.height),
+        length: Number(shippingItem.variant.depth),
+        weight: Number(shippingItem.variant.weight),
+        // as dimensões devem ser enviadas em centímetros (cm)
+        // width: 32,
+        // height: 32,
+        // length: 32,
+        //peso em quilogramas (kg)
+        // weight: 0.2,
+        insurance_value: Number(shippingItem.variant.price),
+      };
+    });
+  }
+
+  public async seekDeliveryQuote(
+    dto: MakeBudgetMelhorEnvioDto,
+  ): Promise<ShipmentCalculateMelhorEnvioResponseDto[]> {
+    const formattedProducts = this.formatProductsToShipping(dto.products);
+
+    const deliverysQuote = await this.calculateShipment({
+      postal_code: dto.postal_code,
+      products: formattedProducts,
+    });
+
+    return deliverysQuote.map(
+      (item) => new ShipmentCalculateMelhorEnvioResponseDto(item),
+    );
+  }
+
   public async calculateShipment(
     dto: ShipmentCalculateMelhorEnvioDto,
   ): Promise<ShipmentCalculateMelhorEnvioResponse[]> {
@@ -38,6 +106,8 @@ export class MelhorEnvioService {
       services: '1,2,3,4',
     };
 
+    this.logger.log('Iniciando cotação');
+
     const response = await this.melhorEnvioHttpService.post<
       ShipmentCalculateMelhorEnvioResponse[],
       typeof data
@@ -46,6 +116,7 @@ export class MelhorEnvioService {
     });
 
     this.logger.log('Cotação realizada com sucesso');
-    return response;
+
+    return this.removeShipmentErrors(response);
   }
 }

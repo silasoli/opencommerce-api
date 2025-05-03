@@ -49,6 +49,7 @@ export class OrdersController {
     @Body() dto: CreateOrderDto,
   ): Promise<OrderResponseNuvemShopDto> {
     return this.service.create(user._id, dto);
+    // return this.service.create('123', dto);
   }
 
   @ApiOperation({ summary: 'Retorna as compras do usuário' })

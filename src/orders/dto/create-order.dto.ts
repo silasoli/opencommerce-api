@@ -7,9 +7,10 @@ import {
   ValidateNested,
   IsOptional,
   IsString,
+  IsInt,
 } from 'class-validator';
 
-class ProductItemDto {
+export class ProductItemDto {
   @ApiProperty({ description: 'ID do produto' })
   @IsNotEmpty()
   product_id: number;
@@ -19,23 +20,23 @@ class ProductItemDto {
   quantity: number;
 
   @ApiProperty({ description: 'ID da variação do produto', required: false })
-  @IsOptional()
-  variant_id?: number;
+  @IsNotEmpty()
+  variant_id: number;
 }
 
-class ShippingOptionDto {
-  @ApiProperty({ description: 'Nome do método de envio', required: false })
-  @IsOptional()
-  name?: string;
+// class ShippingOptionDto {
+//   @ApiProperty({ description: 'Nome do método de envio', required: false })
+//   @IsOptional()
+//   name?: string;
 
-  @ApiProperty({ description: 'Custo do envio', required: false })
-  @IsOptional()
-  cost?: string;
+//   @ApiProperty({ description: 'Custo do envio', required: false })
+//   @IsOptional()
+//   cost?: string;
 
-  @ApiProperty({ description: 'Estimativa de entrega', required: false })
-  @IsOptional()
-  delivery_estimate?: string;
-}
+//   @ApiProperty({ description: 'Estimativa de entrega', required: false })
+//   @IsOptional()
+//   delivery_estimate?: string;
+// }
 
 class AddressNuvemshopDto {
   @ApiProperty()
@@ -160,11 +161,16 @@ export class CreateOrderDto {
   @Type(() => ProductItemDto)
   products: ProductItemDto[];
 
-  @ApiProperty({ type: ShippingOptionDto, required: false })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => ShippingOptionDto)
-  shipping_option: ShippingOptionDto;
+  // @ApiProperty({ type: ShippingOptionDto, required: false })
+  // @IsOptional()
+  // @ValidateNested()
+  // @Type(() => ShippingOptionDto)
+  // shipping_option: ShippingOptionDto;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsInt()
+  shippingOptionId: number;
 
   @ApiProperty({ type: FullShippingAddressDto })
   @ValidateNested()

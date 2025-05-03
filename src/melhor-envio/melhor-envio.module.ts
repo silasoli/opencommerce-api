@@ -8,5 +8,6 @@ import { HttpModule } from '@nestjs/axios';
   imports: [HttpModule],
   controllers: [MelhorEnvioController],
   providers: [MelhorEnvioHttpService, MelhorEnvioService],
+  exports: [MelhorEnvioService],
 })
 export class MelhorEnvioModule {}

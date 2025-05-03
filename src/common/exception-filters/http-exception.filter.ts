@@ -47,13 +47,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
 
     this.logger.error(
-      `Http Status: ${status} Error Message: ${JSON.stringify(errorResponse)}`,
+      `Http Status: ${status} Error Message: ${JSON.stringify({ ...errorResponse, statusCode: status })}`,
     );
 
     response.status(status).json({
       timestamp: new Date().toISOString(),
       path: request.url,
-      error: errorResponse,
+      error: { ...errorResponse, statusCode: status },
     });
   }
 }
