@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateOrderDto, ProductItemDto } from '../dto/create-order.dto';
 import { UsersService } from '../../users/services/users.service';
 import { NuvemshopOrdersService } from '../../nuvemshop/services/nuvemshop.orders.service';
@@ -16,7 +16,7 @@ export class OrdersService {
     private readonly nuvemshopOrdersService: NuvemshopOrdersService,
     private readonly nuvemshopProductsService: NuvemshopProductsService,
     private readonly melhorEnvioService: MelhorEnvioService,
-  ) {}
+  ) { }
 
   //!!Atencao vamos precisar colocar na hora de cadastrar os produtos os dados do frete (peso, largura etc)
   private async findVariantsByOrder(
@@ -29,11 +29,7 @@ export class OrdersService {
           item.variant_id,
         );
 
-        if (!variant) {
-          throw new NotFoundException(
-            `Variação ${item.variant_id} do produto ${item.product_id} não encontrada`,
-          );
-        }
+        if (!variant) throw ORDERS_ERRORS.VARIANT_NOT_FOUND;
 
         return {
           variant,
@@ -77,6 +73,34 @@ export class OrdersService {
     });
   }
 
+  public calculateTotalOrderValue(
+    products: ProductItemDto[],
+    variants: ProductsVariantsToShipping[],
+    // installmentCount?: number,
+  ): number {
+    let totalValue = 0;
+
+    for (const product of products) {
+      const match = variants.find((v) => v.variant.id === product.variant_id);
+
+      if (!match) throw ORDERS_ERRORS.VARIANT_NOT_FOUND;
+
+      const price = parseFloat(
+        match.variant.promotional_price ?? match.variant.price,
+      );
+
+      totalValue += price * product.quantity;
+    }
+
+    // if (installmentCount) {
+    //   // Supondo que você tenha um método `calculateInstallments`
+    //   return this.calculateInstallments(totalValue, [installmentCount])[0]
+    //     .amount;
+    // }
+
+    return totalValue;
+  }
+
   public async create(
     userId: string,
     dto: CreateOrderDto,
@@ -97,7 +121,6 @@ export class OrdersService {
     //retorna
 
     // const user = await this.usersService.findOne(userId);
-
     const variants = await this.findVariantsByOrder(dto.products);
 
     const shipping = await this.getShippingSelected(
@@ -106,7 +129,20 @@ export class OrdersService {
       dto.shipping_address.zipcode,
     );
 
-    return shipping as any;
+    const amount = this.calculateTotalOrderValue(
+      dto.products,
+      variants,
+      // dto.installmentCount,
+    );
+
+    const amountWithShipping = amount + parseFloat(shipping.price);
+
+    return {
+      amount,
+      amount_with_shipping: amountWithShipping,
+    } as any;
+
+    // return amount as any;
 
     // return this.nuvemshopOrdersService.create({
     //   ...dto,
