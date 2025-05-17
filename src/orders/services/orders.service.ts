@@ -8,6 +8,9 @@ import { MelhorEnvioService } from '../../melhor-envio/services/melhor-envio.ser
 import { ShipmentCalculateMelhorEnvioResponse } from '../../melhor-envio/types/shipment-calculate.types';
 import { ORDERS_ERRORS } from '../constants/orders.errors';
 import { ProductsVariantsToShipping } from '../types/orders.type';
+import { BillingType } from '../../asaas/dto/payments/create-charge-asaas.dto';
+import { CreateChargeAsaasResponse } from '../../asaas/types/payments/CreateChargeAsaasResponse.types';
+import { AsaasPaymentsService } from '../../asaas/services/asaas.payments.service';
 
 @Injectable()
 export class OrdersService {
@@ -16,7 +19,8 @@ export class OrdersService {
     private readonly nuvemshopOrdersService: NuvemshopOrdersService,
     private readonly nuvemshopProductsService: NuvemshopProductsService,
     private readonly melhorEnvioService: MelhorEnvioService,
-  ) { }
+    private readonly asaasPaymentsService: AsaasPaymentsService,
+  ) {}
 
   //!!Atencao vamos precisar colocar na hora de cadastrar os produtos os dados do frete (peso, largura etc)
   private async findVariantsByOrder(
@@ -73,7 +77,7 @@ export class OrdersService {
     });
   }
 
-  public calculateTotalOrderValue(
+  private calculateTotalOrderValue(
     products: ProductItemDto[],
     variants: ProductsVariantsToShipping[],
     // installmentCount?: number,
@@ -101,9 +105,59 @@ export class OrdersService {
     return totalValue;
   }
 
+  private async createInAssas(
+    dto: CreateOrderDto,
+    customer: string,
+    amount: number,
+    remoteIp: string,
+  ): Promise<CreateChargeAsaasResponse> {
+    switch (dto.billingType) {
+      case BillingType.BOLETO:
+        return this.asaasPaymentsService.createCharge({
+          customer,
+          billingType: BillingType.BOLETO,
+          dueDate: new Date(),
+          value: amount,
+        });
+      case BillingType.CREDIT_CARD: {
+        const installmentCount =
+          dto.installmentCount > 1 ? dto?.installmentCount : undefined;
+
+        const totalValue = dto?.installmentCount > 1 ? amount : undefined;
+
+        return this.asaasPaymentsService.creditCard(
+          {
+            customer,
+            installmentCount,
+            totalValue,
+            dueDate: new Date(),
+            value: amount,
+            remoteIp: remoteIp,
+          },
+          {
+            customer,
+            remoteIp: remoteIp,
+            creditCard: dto.card,
+            creditCardHolderInfo: dto.creditCardHolderInfo,
+          },
+        );
+      }
+      case BillingType.PIX:
+        return this.asaasPaymentsService.createCharge({
+          customer,
+          billingType: BillingType.PIX,
+          dueDate: new Date(),
+          value: amount,
+        });
+      default:
+        throw ORDERS_ERRORS.FAILED_CREATE_ASAAS_ORDER;
+    }
+  }
+
   public async create(
     userId: string,
     dto: CreateOrderDto,
+    remoteIp: string,
   ): Promise<OrderResponseNuvemShopDto> {
     //encontra os produtos da order na nuvemshop
     //pega os dados do metodo de entrega (shipping_option, os produtos, codigo postal)
@@ -120,7 +174,7 @@ export class OrdersService {
 
     //retorna
 
-    // const user = await this.usersService.findOne(userId);
+    const user = await this.usersService.findOne(userId);
     const variants = await this.findVariantsByOrder(dto.products);
 
     const shipping = await this.getShippingSelected(
@@ -136,6 +190,13 @@ export class OrdersService {
     );
 
     const amountWithShipping = amount + parseFloat(shipping.price);
+
+    const asaasOrder = await this.createInAssas(
+      dto,
+      user.asaas_customer_id,
+      amountWithShipping,
+      remoteIp,
+    );
 
     return {
       amount,

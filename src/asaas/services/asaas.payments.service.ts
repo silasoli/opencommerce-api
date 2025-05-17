@@ -17,6 +17,7 @@ import { CreditCardTokenizeAsaasResponse } from '../types/payments/CreditCardAsa
 import { ConfigService } from '@nestjs/config';
 import { AsaasHttpService } from './asaas.http.service';
 import { SERVER_ERRORS } from '../../common/constants/server.errors';
+import { CreateChargeCardWithTokenDto } from '../dto/payments/create-charge-card-token-asaas.dto';
 
 @Injectable()
 export class AsaasPaymentsService {
@@ -69,7 +70,7 @@ export class AsaasPaymentsService {
     const token = await this.creditCardTokenize(card);
     return this.asaasHttpService.post<
       CreateChargeAsaasResponse,
-      CreateChargeCardAsaasDto
+      CreateChargeCardWithTokenDto
     >(
       `${this.ASAAS_URL}/payments`,
       {

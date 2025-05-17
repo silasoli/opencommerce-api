@@ -7,7 +7,7 @@ export class UserResponseDto {
       id,
       username,
       email,
-      // asaas_customer_id,
+      asaas_customer_id,
       // nuvemshop_customer_id,
       password,
     } = user;
@@ -16,7 +16,7 @@ export class UserResponseDto {
       id: String(id),
       username,
       email,
-      // asaas_customer_id,
+      asaas_customer_id,
       // nuvemshop_customer_id
       password,
     };
@@ -31,8 +31,8 @@ export class UserResponseDto {
   @ApiProperty({ required: true })
   email: string;
 
-  // @ApiProperty({ required: true })
-  // asaas_customer_id: string;
+  @ApiProperty({ required: true })
+  asaas_customer_id: string;
 
   // @ApiProperty({ required: true })
   // nuvemshop_customer_id: number;

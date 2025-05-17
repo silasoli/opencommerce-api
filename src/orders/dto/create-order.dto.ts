@@ -8,7 +8,14 @@ import {
   IsOptional,
   IsString,
   IsInt,
+  IsEnum,
+  Max,
+  Min,
+  ValidateIf,
 } from 'class-validator';
+import { BillingType } from '../../asaas/dto/payments/create-charge-asaas.dto';
+import { CardAsaasDto } from '../../asaas/dto/orders/card-asaas.dto';
+import { CreditCardHolderInfoAsaasDto } from '../../asaas/dto/orders/holder-info-asaas.dto';
 
 export class ProductItemDto {
   @ApiProperty({ description: 'ID do produto' })
@@ -23,20 +30,6 @@ export class ProductItemDto {
   @IsNotEmpty()
   variant_id: number;
 }
-
-// class ShippingOptionDto {
-//   @ApiProperty({ description: 'Nome do método de envio', required: false })
-//   @IsOptional()
-//   name?: string;
-
-//   @ApiProperty({ description: 'Custo do envio', required: false })
-//   @IsOptional()
-//   cost?: string;
-
-//   @ApiProperty({ description: 'Estimativa de entrega', required: false })
-//   @IsOptional()
-//   delivery_estimate?: string;
-// }
 
 class AddressNuvemshopDto {
   @ApiProperty()
@@ -161,11 +154,40 @@ export class CreateOrderDto {
   @Type(() => ProductItemDto)
   products: ProductItemDto[];
 
-  // @ApiProperty({ type: ShippingOptionDto, required: false })
-  // @IsOptional()
-  // @ValidateNested()
-  // @Type(() => ShippingOptionDto)
-  // shipping_option: ShippingOptionDto;
+  @ApiProperty({ description: 'Payment method' })
+  @IsNotEmpty()
+  @IsEnum(BillingType)
+  billingType: BillingType;
+
+  @ValidateIf((o: CreateOrderDto) => o.billingType === BillingType.CREDIT_CARD)
+  @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => CardAsaasDto)
+  @ApiProperty({
+    description: 'Credit card information for the transaction',
+    type: CardAsaasDto,
+  })
+  card: CardAsaasDto;
+
+  @ValidateIf((o: CreateOrderDto) => o.billingType === BillingType.CREDIT_CARD)
+  @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => CreditCardHolderInfoAsaasDto)
+  @ApiProperty({
+    description: 'Credit Card Holder Info',
+    type: CreditCardHolderInfoAsaasDto,
+  })
+  creditCardHolderInfo: CreditCardHolderInfoAsaasDto;
+
+  @ValidateIf((o: CreateOrderDto) => o.billingType === BillingType.CREDIT_CARD)
+  @IsOptional()
+  @IsInt()
+  @Min(2)
+  @Max(12)
+  @ApiProperty({
+    description: 'Number of installments (valid only for credit card payments)',
+  })
+  installmentCount: number;
 
   @ApiProperty()
   @IsNotEmpty()
