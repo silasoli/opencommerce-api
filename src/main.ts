@@ -33,7 +33,7 @@ async function bootstrap() {
     .setTitle('Open Commerce API')
     .setDescription('Open Commerce API developed by @opencommerce')
     .setVersion('1.0')
-    // .addBearerAuth()
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
