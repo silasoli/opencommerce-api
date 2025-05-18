@@ -55,7 +55,7 @@ export class UsersService {
         {
           address: dto.address.address,
           city: dto.address.city,
-          country: 'Brasil',
+          country: 'BR',
           number: dto.address.addressNumber,
           province: dto.address.province,
           zipcode: dto.address.postalCode,

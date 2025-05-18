@@ -6,7 +6,7 @@ import { NUVEMSHOP_ERRORS } from '../constants/nuvemshop.errors';
 
 @Injectable()
 export class NuvemshopHttpService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService) { }
 
   async get<T>(url: string, headers?: Record<string, string>): Promise<T> {
     return this.request<T>('get', url, undefined, headers);
@@ -55,8 +55,9 @@ export class NuvemshopHttpService {
     if (error instanceof AxiosError && error.response) {
       const nuvemshopError = error as NuvemshopError;
       const statusCode = nuvemshopError.response.status;
+      const responseData = nuvemshopError.response.data;
 
-      if (!nuvemshopError.response.data) {
+      if (!responseData) {
         throw new HttpException(
           NUVEMSHOP_ERRORS.UNKNOWN_ERROR.message,
           statusCode,
@@ -64,7 +65,15 @@ export class NuvemshopHttpService {
       }
 
       const { description } = nuvemshopError.response.data;
-      throw new HttpException(description, statusCode);
+
+      const errorMessages = Object.entries(responseData)
+        .map(
+          ([field, messages]) =>
+            `${field}: ${(messages as unknown as string[]).join(', ')}`,
+        )
+        .join(' | ');
+
+      throw new HttpException(errorMessages || description, statusCode);
     }
 
     throw NUVEMSHOP_ERRORS.UNKNOWN_ERROR;
