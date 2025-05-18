@@ -1,11 +1,13 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, Logger } from '@nestjs/common';
 import { AxiosError } from 'axios';
 import { NuvemshopError } from '../types/NuvemshopError.type';
 import { NUVEMSHOP_ERRORS } from '../constants/nuvemshop.errors';
 
 @Injectable()
 export class NuvemshopHttpService {
+  private readonly logger = new Logger(NuvemshopHttpService.name);
+
   constructor(private readonly httpService: HttpService) {}
 
   async get<T>(url: string, headers?: Record<string, string>): Promise<T> {
@@ -45,8 +47,13 @@ export class NuvemshopHttpService {
         data,
         headers,
       });
+
+      this.logger.log(`REQUISIÇÃO REALIZADA COM SUCESSO: ${method} ${url}`);
+
       return response.data;
     } catch (error) {
+      this.logger.log(`ERRO NA REQUISIÇÃO: ${method} ${url} - ${error}`);
+
       this.handleError(error);
     }
   }

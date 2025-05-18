@@ -14,6 +14,7 @@ import {
   FindOrCreateCustomerInAsaasReturn,
   FindOrCreateCustomerInNuvemshopReturn,
 } from '../types/users.type';
+import { CustomerResponseNuvemShopDto } from '../../nuvemshop/dto/customers/customer-response.nuvemshop.dto';
 
 @Injectable()
 export class UsersService {
@@ -41,9 +42,14 @@ export class UsersService {
   private async findOrCreateCustomerInNuvemshop(
     dto: CreateUserDto,
   ): Promise<FindOrCreateCustomerInNuvemshopReturn> {
-    const existingCustomer = await this.nuvemshopCustomersService.getByEmail(
-      dto.email,
-    );
+    let existingCustomer: CustomerResponseNuvemShopDto | null = null;
+
+    try {
+      existingCustomer = await this.nuvemshopCustomersService.getByEmail(
+        dto.email,
+      );
+      // eslint-disable-next-line no-empty
+    } catch {}
 
     if (existingCustomer) return { id: existingCustomer.id, wasCreated: false };
 
