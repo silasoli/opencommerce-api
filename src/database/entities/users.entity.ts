@@ -30,7 +30,7 @@ export class Users {
   @Column({ unique: true })
   asaas_customer_id: string;
 
-  @OneToOne(() => Address, (address) => address.user, { cascade: true }) 
+  @OneToOne(() => Address, (address) => address.user, { cascade: true })
   @JoinColumn()
   address: Address;
 

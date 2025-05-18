@@ -6,7 +6,7 @@ import { NUVEMSHOP_ERRORS } from '../constants/nuvemshop.errors';
 
 @Injectable()
 export class NuvemshopHttpService {
-  constructor(private readonly httpService: HttpService) { }
+  constructor(private readonly httpService: HttpService) {}
 
   async get<T>(url: string, headers?: Record<string, string>): Promise<T> {
     return this.request<T>('get', url, undefined, headers);

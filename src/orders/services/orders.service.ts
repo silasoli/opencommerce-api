@@ -158,7 +158,8 @@ export class OrdersService {
     userId: string,
     dto: CreateOrderDto,
     remoteIp: string,
-  ): Promise<OrderResponseNuvemShopDto> {
+    // ): Promise<OrderResponseNuvemShopDto> {
+  ): Promise<unknown> {
     //encontra os produtos da order na nuvemshop
     //pega os dados do metodo de entrega (shipping_option, os produtos, codigo postal)
     //cria customer no assas, mas ja existe (nao precisa)
@@ -199,9 +200,10 @@ export class OrdersService {
     );
 
     return {
+      asaasOrder,
       amount,
       amount_with_shipping: amountWithShipping,
-    } as any;
+    } as unknown;
 
     // return amount as any;
 
