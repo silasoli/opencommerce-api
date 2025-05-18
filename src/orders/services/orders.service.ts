@@ -11,9 +11,14 @@ import { ProductsVariantsToShipping } from '../types/orders.type';
 import { BillingType } from '../../asaas/dto/payments/create-charge-asaas.dto';
 import { CreateChargeAsaasResponse } from '../../asaas/types/payments/CreateChargeAsaasResponse.types';
 import { AsaasPaymentsService } from '../../asaas/services/asaas.payments.service';
+import { CalculateInstallments } from '../types/installments.types';
 
 @Injectable()
 export class OrdersService {
+  private interestRate = parseFloat(
+    process.env.INSTALLMENT_INTEREST_RATE_IN_CENTS ?? '0',
+  );
+
   constructor(
     private readonly usersService: UsersService,
     private readonly nuvemshopOrdersService: NuvemshopOrdersService,
@@ -23,7 +28,7 @@ export class OrdersService {
   ) {}
 
   //!!Atencao vamos precisar colocar na hora de cadastrar os produtos os dados do frete (peso, largura etc)
-  private async findVariantsByOrder(
+  public async findVariantsByOrder(
     dto: ProductItemDto[],
   ): Promise<ProductsVariantsToShipping[]> {
     const results = await Promise.all(
@@ -77,10 +82,34 @@ export class OrdersService {
     });
   }
 
-  private calculateTotalOrderValue(
+  public calculateInstallments(
+    totalValue: number,
+    requestedInstallments: number[],
+  ): CalculateInstallments[] {
+    const installmentsArray: CalculateInstallments[] = [];
+
+    for (const installments of requestedInstallments) {
+      // Aplica juros apenas se for parcelado acima de 3 vezes
+      const totalValueWithInterest =
+        installments > 3 ? totalValue + this.interestRate : totalValue;
+
+      const amount = Math.round(totalValueWithInterest);
+      const installmentValue = Math.round(amount / installments);
+
+      installmentsArray.push({
+        installments,
+        installmentValue,
+        amount,
+      });
+    }
+
+    return installmentsArray;
+  }
+
+  public calculateTotalOrderValue(
     products: ProductItemDto[],
     variants: ProductsVariantsToShipping[],
-    // installmentCount?: number,
+    installmentCount?: number,
   ): number {
     let totalValue = 0;
 
@@ -96,11 +125,10 @@ export class OrdersService {
       totalValue += price * product.quantity;
     }
 
-    // if (installmentCount) {
-    //   // Supondo que você tenha um método `calculateInstallments`
-    //   return this.calculateInstallments(totalValue, [installmentCount])[0]
-    //     .amount;
-    // }
+    if (installmentCount) {
+      return this.calculateInstallments(totalValue, [installmentCount])[0]
+        .amount;
+    }
 
     return totalValue;
   }
@@ -187,7 +215,7 @@ export class OrdersService {
     const amount = this.calculateTotalOrderValue(
       dto.products,
       variants,
-      // dto.installmentCount,
+      dto.installmentCount,
     );
 
     const amountWithShipping = amount + parseFloat(shipping.price);
