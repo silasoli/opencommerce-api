@@ -7,6 +7,7 @@ import {
   Param,
   // Delete,
   UseGuards,
+  Ip,
 } from '@nestjs/common';
 import { CreateOrderDto } from '../dto/create-order.dto';
 // import { UpdateOrderDto } from '../dto/update-order.dto';
@@ -46,9 +47,11 @@ export class OrdersController {
   create(
     @UserRequest() user: UserRequestDTO,
     @Body() dto: CreateOrderDto,
-  ): Promise<OrderResponseNuvemShopDto> {
-    return this.service.create(user._id, dto);
-    // return this.service.create('123', dto);
+    @Ip() ip: string,
+    // ): Promise<OrderResponseNuvemShopDto> {
+  ): Promise<unknown> {
+    return this.service.create(user._id, dto, ip);
+    // return this.service.create('123', dto, ip);
   }
 
   @ApiOperation({ summary: 'Retorna as compras do usuário' })
