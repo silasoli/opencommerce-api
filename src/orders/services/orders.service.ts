@@ -12,6 +12,9 @@ import { BillingType } from '../../asaas/dto/payments/create-charge-asaas.dto';
 import { CreateChargeAsaasResponse } from '../../asaas/types/payments/CreateChargeAsaasResponse.types';
 import { AsaasPaymentsService } from '../../asaas/services/asaas.payments.service';
 import { CalculateInstallments } from '../types/installments.types';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Orders } from '../../database/entities/order.entity';
 
 @Injectable()
 export class OrdersService {
@@ -20,12 +23,15 @@ export class OrdersService {
   );
 
   constructor(
+    @InjectRepository(Orders)
+    private repository: Repository<Orders>,
+
     private readonly usersService: UsersService,
     private readonly nuvemshopOrdersService: NuvemshopOrdersService,
     private readonly nuvemshopProductsService: NuvemshopProductsService,
     private readonly melhorEnvioService: MelhorEnvioService,
     private readonly asaasPaymentsService: AsaasPaymentsService,
-  ) {}
+  ) { }
 
   //!!Atencao vamos precisar colocar na hora de cadastrar os produtos os dados do frete (peso, largura etc)
   public async findVariantsByOrder(
@@ -146,6 +152,7 @@ export class OrdersService {
           billingType: BillingType.BOLETO,
           dueDate: new Date(),
           value: amount,
+          description: 'OPENCOMMERCE_API',
         });
       case BillingType.CREDIT_CARD: {
         const installmentCount =
@@ -161,6 +168,7 @@ export class OrdersService {
             dueDate: new Date(),
             value: amount,
             remoteIp: remoteIp,
+            description: 'OPENCOMMERCE_API',
           },
           {
             customer,
@@ -176,6 +184,7 @@ export class OrdersService {
           billingType: BillingType.PIX,
           dueDate: new Date(),
           value: amount,
+          description: 'OPENCOMMERCE_API',
         });
       default:
         throw ORDERS_ERRORS.FAILED_CREATE_ASAAS_ORDER;
@@ -188,6 +197,7 @@ export class OrdersService {
     remoteIp: string,
     // ): Promise<OrderResponseNuvemShopDto> {
   ): Promise<unknown> {
+    //oq fazer se a compra for aprovada no cartao , mas nao salvar a order?
     //encontra os produtos da order na nuvemshop
     //pega os dados do metodo de entrega (shipping_option, os produtos, codigo postal)
     //cria customer no assas, mas ja existe (nao precisa)
@@ -227,11 +237,44 @@ export class OrdersService {
       remoteIp,
     );
 
-    return {
-      asaasOrder,
-      amount,
-      amount_with_shipping: amountWithShipping,
-    } as unknown;
+    const nuvemshopOrder = await this.nuvemshopOrdersService.create({
+      ...dto,
+      contact_email: user.email,
+      currency: 'BRL',
+      // send_email: true,
+      gateway: 'not-provided',
+      inventory_behaviour: 'claim',
+      customer: {
+        name: user.username,
+        email: user.email,
+      },
+      billing_address: { ...dto.billing_address, country: 'BR' },
+      shipping_address: { ...dto.shipping_address, country: 'BR' },
+      shipping_pickup_type: 'ship',
+      shipping: 'table',
+      shipping_option: 'pegar dos dados do melhor envio',
+      shipping_cost_customer: parseFloat(shipping.price),
+    });
+
+    const order = await this.repository.save({
+      amount: amountWithShipping,
+      billingType: dto.billingType,
+      user_id: user.id,
+      paymentStatus: asaasOrder.status,
+      orderData: [JSON.stringify(nuvemshopOrder)],
+      paymentData: [JSON.stringify(asaasOrder)],
+      shippingData: [JSON.stringify(shipping)],
+    });
+
+    // order.asaasData = undefined;
+    // order.shippingData = undefined;
+
+    return order;
+    // return {
+    //   asaasOrder,
+    //   amount,
+    //   amount_with_shipping: amountWithShipping,
+    // } as unknown;
 
     // return amount as any;
 

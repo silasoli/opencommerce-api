@@ -20,6 +20,9 @@ export class CreateChargeAsaasDto {
   dueDate: Date;
 
   @ApiProperty({ required: true })
+  description: string;
+
+  @ApiProperty({ required: true })
   installmentCount?: number; //apenas para cartão
 
   @ApiProperty({ required: true })

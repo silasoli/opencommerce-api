@@ -72,10 +72,10 @@ class AddressNuvemshopDto {
   @IsString()
   province: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  country: string;
+  // @ApiProperty()
+  // @IsNotEmpty()
+  // @IsString()
+  // country: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -119,10 +119,10 @@ class FullShippingAddressDto {
   @IsString()
   province: string;
 
-  @ApiProperty({ description: 'País' })
-  @IsNotEmpty()
-  @IsString()
-  country: string;
+  // @ApiProperty({ description: 'País' })
+  // @IsNotEmpty()
+  // @IsString()
+  // country: string;
 
   @ApiProperty({ description: 'CEP' })
   @IsNotEmpty()

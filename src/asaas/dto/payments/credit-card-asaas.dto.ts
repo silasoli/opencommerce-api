@@ -143,6 +143,9 @@ export class CreateChargeCardAsaasDto {
   @ApiProperty({ required: true })
   discount?: { value: number };
 
+  @ApiProperty({ required: true })
+  description: string;
+
   // @ApiProperty({ required: true })
   // creditCardToken: string;
 

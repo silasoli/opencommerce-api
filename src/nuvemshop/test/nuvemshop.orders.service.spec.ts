@@ -64,12 +64,35 @@ describe('NuvemshopOrdersService - Testes Reais com API', () => {
       shipping_address: {
         address: 'Rua Teste',
         city: 'São Paulo',
-        country: 'BR',
         number: '123',
         province: 'SP',
         zipcode: '01234-567',
         phone: '11999999999',
+        first_name: 'cliente',
+        last_name: 'teste',
+        country: 'BR',
       },
+      customer: {
+        name: 'cliente teste',
+        email: `cliente${Date.now()}@example.com`,
+      },
+      shipping_pickup_type: 'ship',
+      gateway: 'not-provided',
+      inventory_behaviour: 'claim',
+      billing_address: {
+        address: 'Rua Teste',
+        city: 'São Paulo',
+        number: '123',
+        province: 'SP',
+        zipcode: '01234-567',
+        phone: '11999999999',
+        first_name: 'cliente',
+        last_name: 'teste',
+        country: 'BR',
+      },
+      shipping: 'not-provided',
+      shipping_option: '',
+      shipping_cost_customer: 0,
     };
 
     createdOrder = await ordersService.create(dto);

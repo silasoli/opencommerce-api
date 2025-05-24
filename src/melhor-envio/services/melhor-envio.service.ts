@@ -37,27 +37,6 @@ export class MelhorEnvioService {
     return shipment.filter((item) => !item.error);
   }
 
-  // private async calculateShipment(
-  //   dto: ShipmentCalculateMelhorEnvioDto,
-  // ): Promise<ShipmentCalculateMelhorEnvioResponse[]> {
-  //   const data = {
-  //     from: { postal_code: this.MELHOR_ENVIO_FROM },
-  //     to: { postal_code: dto.postal_code },
-  //     products: dto.products,
-  //     options: { receipt: false, own_hand: false },
-  //     services: '1,2,3,4',
-  //   };
-
-  //   const response = await this.melhorEnvioHttpService.post<
-  //     ShipmentCalculateMelhorEnvioResponse[],
-  //     typeof data
-  //   >(`${this.MELHOR_ENVIO_URL}/v2/me/shipment/calculate`, data, {
-  //     Authorization: this.AUTH,
-  //   });
-
-  //   return this.removeShipmentErrors(response);
-  // }
-
   private formatProductsToShipping(
     shippingProducs: ProductsVariantsToShipping[],
   ): ProductsToSendType[] {
