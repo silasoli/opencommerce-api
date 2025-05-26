@@ -26,7 +26,7 @@ import { UserRequest } from '../../auth/decorators/user-request.decorator';
 import { OrderResponseNuvemShopDto } from '../../nuvemshop/dto/orders/order-response.nuvemshop.dto';
 import { Role } from '../../roles/decorators/roles.decorator';
 import { Roles } from '../../roles/enums/role.enum';
-import { IDOrderDTO } from '../dto/id-order.dto';
+import { IDPostgresQueryDTO } from '../../common/dto/id-postgres-query.dto';
 
 @ApiBearerAuth()
 @ApiTags('Orders - User')
@@ -76,7 +76,7 @@ export class OrdersController {
   @Get(':id')
   findOne(
     @UserRequest() user: UserRequestDTO,
-    @Param() params: IDOrderDTO,
+    @Param() params: IDPostgresQueryDTO,
   ): Promise<OrderResponseNuvemShopDto> {
     return this.service.findOne(user._id, params.id);
   }

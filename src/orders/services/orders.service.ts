@@ -31,7 +31,7 @@ export class OrdersService {
     private readonly nuvemshopProductsService: NuvemshopProductsService,
     private readonly melhorEnvioService: MelhorEnvioService,
     private readonly asaasPaymentsService: AsaasPaymentsService,
-  ) { }
+  ) {}
 
   //!!Atencao vamos precisar colocar na hora de cadastrar os produtos os dados do frete (peso, largura etc)
   public async findVariantsByOrder(
@@ -257,7 +257,9 @@ export class OrdersService {
     });
 
     const order = await this.repository.save({
-      amount: amountWithShipping,
+      amount: `${amountWithShipping}`,
+      asaas_order_id: asaasOrder.id,
+      nuvemshop_order_id: nuvemshopOrder.id,
       billingType: dto.billingType,
       user_id: user.id,
       paymentStatus: asaasOrder.status,
@@ -306,25 +308,39 @@ export class OrdersService {
   //adicionar pagamento por cartao
 
   public async findAll(userId: string): Promise<OrderResponseNuvemShopDto[]> {
+    //buscar só as orders do user internamente
     const user = await this.usersService.findOne(userId);
-    //pegar id da nuvemshop salvo no user e pegar as compras dele
 
     return this.nuvemshopOrdersService.getAllByCustomerId(user.id);
   }
 
   public async findOne(
     userId: string,
-    id: number,
+    id: string,
   ): Promise<OrderResponseNuvemShopDto> {
-    // const user = await this.usersService.findOne(userId);
-    //pegar id da nuvemshop salvo no user e pegar as compras dele
+    //perguntar a victor oq ele prefere...
+    const user = await this.usersService.findOne(userId);
+    const internalOrder = await this.repository.findOneOrFail({
+      where: {
+        user_id: user.id,
+        id,
+      },
+    });
 
-    const order = await this.nuvemshopOrdersService.getById(id);
+    const nuvemshopOrder = await this.nuvemshopOrdersService.getById(
+      internalOrder.nuvemshop_order_id,
+    );
 
-    // if (order.customer?.id !== customerId) {
-    //   throw new NotFoundException('Order does not belong to the current user');
-    // }
+    if (nuvemshopOrder.customer?.id !== user.nuvemshop_customer_id) {
+      throw ORDERS_ERRORS.NOT_FOUND;
+    }
 
-    return order;
+    // const asaasOrder = await this.asaasPaymentsService.findOneCharge(
+    //   internalOrder.asaas_order_id,
+    // );
+
+    //retornar os 2, criar um dto de retornos pro swagger
+
+    return nuvemshopOrder;
   }
 }

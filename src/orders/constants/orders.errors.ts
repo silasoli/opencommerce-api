@@ -17,4 +17,8 @@ export const ORDERS_ERRORS = {
     id: 'ORD-003',
     message: 'Falha para criar pedido na adquirente',
   }),
+  NOT_FOUND: new NotFoundException({
+    id: 'ORD-004',
+    message: 'Pedido nao encontrado',
+  }),
 };

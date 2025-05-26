@@ -31,8 +31,14 @@ export class Orders {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ unique: true })
+  nuvemshop_order_id: number;
+
+  @Column({ unique: true })
+  asaas_order_id: string;
+
   @Column()
-  amount: number;
+  amount: string;
 
   @Column({
     type: 'enum',
