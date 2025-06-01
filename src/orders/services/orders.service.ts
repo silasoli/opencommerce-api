@@ -197,6 +197,9 @@ export class OrdersService {
     remoteIp: string,
     // ): Promise<OrderResponseNuvemShopDto> {
   ): Promise<unknown> {
+    //verificar retorno do pix
+    //no fluxo de webhook atualizar os dados da order...
+
     //oq fazer se a compra for aprovada no cartao , mas nao salvar a order?
     //encontra os produtos da order na nuvemshop
     //pega os dados do metodo de entrega (shipping_option, os produtos, codigo postal)
@@ -301,14 +304,10 @@ export class OrdersService {
     // });
   }
 
-  //Cria cobrança no Asaas
   //Retorna pro Front URL de pagamento ou QRCode
   //dados da compra
 
-  //adicionar pagamento por cartao
-
   public async findAll(userId: string): Promise<OrderResponseNuvemShopDto[]> {
-    //buscar só as orders do user internamente
     const user = await this.usersService.findOne(userId);
 
     return this.nuvemshopOrdersService.getAllByCustomerId(user.id);
