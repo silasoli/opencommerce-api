@@ -205,13 +205,6 @@ export class OrdersService {
     //pega os dados do metodo de entrega (shipping_option, os produtos, codigo postal)
     //cria customer no assas, mas ja existe (nao precisa)
 
-    //formata produto para salvar (nao precisa)
-    //soma valor total com valor do frete
-
-    //cria no assas
-
-    //cria na nuvemshop
-
     //pega dados do pagamento
 
     //retorna
@@ -315,14 +308,13 @@ export class OrdersService {
 
   public async findOne(
     userId: string,
-    id: string,
+    id: number,
   ): Promise<OrderResponseNuvemShopDto> {
-    //perguntar a victor oq ele prefere...
     const user = await this.usersService.findOne(userId);
     const internalOrder = await this.repository.findOneOrFail({
       where: {
         user_id: user.id,
-        id,
+        nuvemshop_order_id: id,
       },
     });
 
@@ -333,12 +325,6 @@ export class OrdersService {
     if (nuvemshopOrder.customer?.id !== user.nuvemshop_customer_id) {
       throw ORDERS_ERRORS.NOT_FOUND;
     }
-
-    // const asaasOrder = await this.asaasPaymentsService.findOneCharge(
-    //   internalOrder.asaas_order_id,
-    // );
-
-    //retornar os 2, criar um dto de retornos pro swagger
 
     return nuvemshopOrder;
   }

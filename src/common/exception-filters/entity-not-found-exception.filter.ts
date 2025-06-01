@@ -46,8 +46,8 @@ export class EntityNotFoundExceptionFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
       path: path,
       error: {
-        message: message,
-        error: error,
+        message: message || [error],
+        // error: error,
         statusCode: status,
       },
     });
@@ -64,4 +64,5 @@ export class EntityNotFoundExceptionFilter implements ExceptionFilter {
 
 export const TypeORMExceptionMessages: Record<string, string> = {
   product: 'Produto não encontrado.',
+  orders: 'Pedido nao encontrado.',
 };
