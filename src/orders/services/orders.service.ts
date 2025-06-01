@@ -268,33 +268,6 @@ export class OrdersService {
     // order.shippingData = undefined;
 
     return order;
-    // return {
-    //   asaasOrder,
-    //   amount,
-    //   amount_with_shipping: amountWithShipping,
-    // } as unknown;
-
-    // return amount as any;
-
-    // return this.nuvemshopOrdersService.create({
-    //   ...dto,
-    //   contact_email: user.email,
-    //   currency: 'BRL',
-    //   send_email: true,
-    //   gateway: 'not-provided',
-    //   inventory_behaviour: 'claim',
-    //   customer: {
-    //     name: user.username,
-    //     email: user.email,
-    //   },
-    //   billing_address: dto.billing_address,
-    //   shipping_address: dto.shipping_address,
-    //   shipping_pickup_type: 'ship',
-    //   shipping: 'table',
-    //   shipping_option: 'pegar dos dados do melhor envio',
-    //   //vou precisar buscar os produtos na hora de criar a order, calcular o frete e dps  usar esse valor aqui
-    //   shipping_cost_customer: 10.0,
-    // });
   }
 
   //Retorna pro Front URL de pagamento ou QRCode
