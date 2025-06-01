@@ -63,14 +63,17 @@ export class Orders {
   @Column()
   user_id: string;
 
-  @Column('simple-array', { nullable: true, select: false })
-  orderData?: string[];
+  @Column('jsonb', { nullable: true })
+  orderData?: Record<string, any>;
 
-  @Column('simple-array', { nullable: true, select: false })
-  paymentData?: string[];
+  @Column('jsonb', { nullable: true })
+  paymentData?: Record<string, any>;
 
-  @Column('simple-array', { nullable: true, select: false })
-  shippingData?: string[];
+  @Column('jsonb', { nullable: true })
+  shippingData?: Record<string, any>;
+
+  @Column('jsonb', { nullable: true })
+  paymentDetails?: Record<string, any>;
 
   @Column({ nullable: true })
   canceledAt?: Date;

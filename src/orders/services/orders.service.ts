@@ -15,6 +15,7 @@ import { CalculateInstallments } from '../types/installments.types';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Orders } from '../../database/entities/order.entity';
+import { PaymentDetailsResponse } from '../../asaas/types/asaas/orders.types';
 
 @Injectable()
 export class OrdersService {
@@ -191,6 +192,24 @@ export class OrdersService {
     }
   }
 
+  private async getPaymentDetails(
+    asaasOrderId: string,
+    billingType: BillingType,
+  ): Promise<PaymentDetailsResponse | null> {
+    if (billingType === BillingType.PIX) {
+      const PIX = await this.asaasPaymentsService.getPixQRCode(asaasOrderId);
+      return { PIX };
+    }
+
+    if (billingType === BillingType.BOLETO) {
+      const BOLETO =
+        await this.asaasPaymentsService.getInvoiceDigitableBill(asaasOrderId);
+      return { BOLETO };
+    }
+
+    return null;
+  }
+
   public async create(
     userId: string,
     dto: CreateOrderDto,
@@ -252,6 +271,11 @@ export class OrdersService {
       shipping_cost_customer: parseFloat(shipping.price),
     });
 
+    const paymentDetails = await this.getPaymentDetails(
+      asaasOrder.id,
+      asaasOrder.billingType,
+    );
+
     const order = await this.repository.save({
       amount: `${amountWithShipping}`,
       asaas_order_id: asaasOrder.id,
@@ -259,10 +283,12 @@ export class OrdersService {
       billingType: dto.billingType,
       user_id: user.id,
       paymentStatus: asaasOrder.status,
-      orderData: [JSON.stringify(nuvemshopOrder)],
-      paymentData: [JSON.stringify(asaasOrder)],
-      shippingData: [JSON.stringify(shipping)],
+      orderData: nuvemshopOrder,
+      paymentData: asaasOrder,
+      shippingData: shipping,
+      paymentDetails: paymentDetails ? paymentDetails : undefined,
     });
+
 
     // order.asaasData = undefined;
     // order.shippingData = undefined;
