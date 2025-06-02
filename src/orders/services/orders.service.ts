@@ -209,6 +209,8 @@ export class OrdersService {
 
     return null;
   }
+  //oq fazer se a compra for aprovada no cartao , mas nao salvar a order?
+  //no fluxo de webhook atualizar os dados da order...
 
   public async create(
     userId: string,
@@ -216,18 +218,6 @@ export class OrdersService {
     remoteIp: string,
     // ): Promise<OrderResponseNuvemShopDto> {
   ): Promise<unknown> {
-    //verificar retorno do pix
-    //no fluxo de webhook atualizar os dados da order...
-
-    //oq fazer se a compra for aprovada no cartao , mas nao salvar a order?
-    //encontra os produtos da order na nuvemshop
-    //pega os dados do metodo de entrega (shipping_option, os produtos, codigo postal)
-    //cria customer no assas, mas ja existe (nao precisa)
-
-    //pega dados do pagamento
-
-    //retorna
-
     const user = await this.usersService.findOne(userId);
     const variants = await this.findVariantsByOrder(dto.products);
 
@@ -280,7 +270,7 @@ export class OrdersService {
       amount: `${amountWithShipping}`,
       asaas_order_id: asaasOrder.id,
       nuvemshop_order_id: nuvemshopOrder.id,
-      billingType: dto.billingType,
+      billingType: asaasOrder.billingType,
       user_id: user.id,
       paymentStatus: asaasOrder.status,
       orderData: nuvemshopOrder,
@@ -289,15 +279,8 @@ export class OrdersService {
       paymentDetails: paymentDetails ? paymentDetails : undefined,
     });
 
-
-    // order.asaasData = undefined;
-    // order.shippingData = undefined;
-
     return order;
   }
-
-  //Retorna pro Front URL de pagamento ou QRCode
-  //dados da compra
 
   public async findAll(userId: string): Promise<OrderResponseNuvemShopDto[]> {
     const user = await this.usersService.findOne(userId);
