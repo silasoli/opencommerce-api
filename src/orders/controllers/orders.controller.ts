@@ -15,6 +15,7 @@ import { OrdersService } from '../services/orders.service';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -27,6 +28,7 @@ import { OrderResponseNuvemShopDto } from '../../nuvemshop/dto/orders/order-resp
 import { Role } from '../../roles/decorators/roles.decorator';
 import { Roles } from '../../roles/enums/role.enum';
 import { IDNumberQueryDTO } from '../../common/dto/id-number-query.dto';
+import { CheckStatusResponseDto } from '../dto/check-status-response.dto';
 
 @ApiBearerAuth()
 @ApiTags('Orders - User')
@@ -79,6 +81,21 @@ export class OrdersController {
     @Param() params: IDNumberQueryDTO,
   ): Promise<OrderResponseNuvemShopDto> {
     return this.service.findOne(user._id, params.id);
+  }
+
+  @Get(':id/check-status')
+  @ApiOkResponse({
+    type: CheckStatusResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Pedido não encontrado',
+  })
+  public checkStatus(
+    @UserRequest() user: UserRequestDTO,
+    @Param() params: IDNumberQueryDTO,
+  ): Promise<CheckStatusResponseDto> {
+    return this.service.checkStatusByID(user._id, params.id);
   }
 
   // @Patch(':id')

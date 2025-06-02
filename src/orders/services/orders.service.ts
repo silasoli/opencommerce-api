@@ -16,6 +16,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Orders } from '../../database/entities/order.entity';
 import { PaymentDetailsResponse } from '../../asaas/types/asaas/orders.types';
+import { CheckStatusResponseDto } from '../dto/check-status-response.dto';
 
 @Injectable()
 export class OrdersService {
@@ -309,5 +310,19 @@ export class OrdersService {
     }
 
     return nuvemshopOrder;
+  }
+
+  public async checkStatusByID(
+    userId: string,
+    id: number,
+  ): Promise<CheckStatusResponseDto> {
+    const user = await this.usersService.findOne(userId);
+    const internalOrder = await this.repository.findOneOrFail({
+      where: {
+        user_id: user.id,
+        nuvemshop_order_id: id,
+      },
+    });
+    return new CheckStatusResponseDto({ status: internalOrder.paymentStatus });
   }
 }
