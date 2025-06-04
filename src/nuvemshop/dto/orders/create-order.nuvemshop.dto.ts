@@ -57,4 +57,5 @@ export class CreateOrderNuvemShopDto {
   shipping_cost_customer: number;
   extra?: Record<string, string>; // campos personalizados
   note: string;
+  status: 'open' | 'closed' | 'cancelled';
 }

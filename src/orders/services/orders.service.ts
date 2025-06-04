@@ -260,6 +260,8 @@ export class OrdersService {
       shipping: 'table',
       shipping_option: 'pegar dos dados do melhor envio',
       shipping_cost_customer: parseFloat(shipping.price),
+      status:
+        asaasOrder.billingType === BillingType.CREDIT_CARD ? 'closed' : 'open',
       note: JSON.stringify({
         billingType: asaasOrder.billingType,
       }),
@@ -344,7 +346,7 @@ export class OrdersService {
   ): Promise<void> {
     await this.nuvemshopOrdersService.putById(nuvemshopOrderId, {
       status: 'closed',
-      owner_note: 'Pagamento confirmado',	
+      owner_note: 'Pagamento confirmado',
     });
 
     await this.repository.update({ id }, { paymentStatus: status });
