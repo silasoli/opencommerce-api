@@ -14,7 +14,7 @@ import { AsaasPaymentsService } from '../../asaas/services/asaas.payments.servic
 import { CalculateInstallments } from '../types/installments.types';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Orders } from '../../database/entities/order.entity';
+import { Orders, PaymentStatus } from '../../database/entities/order.entity';
 import { PaymentDetailsResponse } from '../../asaas/types/asaas/orders.types';
 import { CheckStatusResponseDto } from '../dto/check-status-response.dto';
 
@@ -324,5 +324,22 @@ export class OrdersService {
       },
     });
     return new CheckStatusResponseDto({ status: internalOrder.paymentStatus });
+  }
+
+  public async findOneByAsaasOrderId(asaasOrderId: string) {
+    return this.repository.findOneOrFail({
+      where: {
+        asaas_order_id: asaasOrderId,
+      },
+    });
+  }
+
+  public async updateOrderStatus(
+    id: string,
+    status: PaymentStatus,
+  ): Promise<void> {
+    await this.repository.update({ id }, { paymentStatus: status });
+
+    //atualziar na nuvemshop
   }
 }

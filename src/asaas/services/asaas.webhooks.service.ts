@@ -5,14 +5,20 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PaymentWebook } from '../types/webhooks/webhook.types';
-// import { OrdersService } from '../../orders/services/orders.service';
+import { OrdersService } from '../../orders/services/orders.service';
+import { UsersService } from '../../users/services/users.service';
+import { ASAAS_ERRORS } from '../constants/asaas.errors';
+import { PaymentStatus } from '../../database/entities/order.entity';
 // import { PaymentStatus } from '../../database/entities/order.entity';
 
 @Injectable()
 export class AsaasWebhooksService {
   private readonly logger = new Logger(AsaasWebhooksService.name);
 
-  // constructor(private readonly ordersService: OrdersService) { }
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly usersService: UsersService,
+  ) {}
 
   private async paymentConfirmed(data: PaymentWebook): Promise<void> {
     this.logger.log('INICIANDO WEBHOOK - EVENTO: PAYMENT_CONFIRMED');
@@ -27,17 +33,18 @@ export class AsaasWebhooksService {
     if (data.event != 'PAYMENT_CONFIRMED')
       throw new BadRequestException('EVENTO INVALIDO');
 
-    // const order = await this.ordersService.findOneByExternalID(data.payment.id);
-    // if (order.external_customer_id != data.payment.customer)
-    //   throw new BadRequestException();
+    const order = await this.ordersService.findOneByAsaasOrderId(
+      data.payment.id,
+    );
 
-    //validar se o pagamento foi no boleto ou pix e atualizar a quantidade do pedido
+    await this.usersService.findOne(order.user_id);
 
-    // await this.ordersService.updateOrderStatus(
-    //   order.id,
-    //   PaymentStatus.CONFIRMED,
-    // );
-    return Promise.resolve();
+    if (order.id != data.payment.customer) throw ASAAS_ERRORS.WEBHOOK_ERROR;
+
+    await this.ordersService.updateOrderStatus(
+      order.id,
+      PaymentStatus.CONFIRMED,
+    );
   }
 
   public async validateAndExecutePaymentConfirmed(

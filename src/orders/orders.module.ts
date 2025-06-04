@@ -11,5 +11,6 @@ import { Orders } from '../database/entities/order.entity';
   imports: [TypeOrmModule.forFeature([Orders]), MelhorEnvioModule],
   controllers: [OrdersController, PublicOrdersController],
   providers: [OrdersService, InstallmentsService],
+  exports: [OrdersService],
 })
 export class OrdersModule {}
