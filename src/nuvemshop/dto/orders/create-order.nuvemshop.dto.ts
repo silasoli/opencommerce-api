@@ -56,4 +56,5 @@ export class CreateOrderNuvemShopDto {
   //esse valor deve ser um double que representa o custo do frete
   shipping_cost_customer: number;
   extra?: Record<string, string>; // campos personalizados
+  note: string;
 }

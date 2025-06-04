@@ -75,4 +75,20 @@ export class NuvemshopOrdersService {
       },
     );
   }
+
+  async putById(
+    id: number,
+    // dto: Partial<CreateOrderNuvemShopDto>,
+    dto: any,
+  ): Promise<OrderResponseNuvemShopDto> {
+    console.log('oioioi', dto);
+    return this.httpService.put<OrderResponseNuvemShopDto, any>(
+      `${this.NUVEMSHOP_URL}/${id}`,
+      dto,
+      {
+        Authentication: `bearer ${this.NUVEMSHOP_AUTH}`,
+        'User-Agent': this.NS_USER_AGENT,
+      },
+    );
+  }
 }

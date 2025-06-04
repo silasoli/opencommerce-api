@@ -260,6 +260,9 @@ export class OrdersService {
       shipping: 'table',
       shipping_option: 'pegar dos dados do melhor envio',
       shipping_cost_customer: parseFloat(shipping.price),
+      note: JSON.stringify({
+        billingType: asaasOrder.billingType,
+      }),
     });
 
     const paymentDetails = await this.getPaymentDetails(
@@ -336,10 +339,14 @@ export class OrdersService {
 
   public async updateOrderStatus(
     id: string,
+    nuvemshopOrderId: number,
     status: PaymentStatus,
   ): Promise<void> {
-    await this.repository.update({ id }, { paymentStatus: status });
+    await this.nuvemshopOrdersService.putById(nuvemshopOrderId, {
+      status: 'closed',
+      owner_note: 'Pagamento confirmado',	
+    });
 
-    //atualziar na nuvemshop
+    await this.repository.update({ id }, { paymentStatus: status });
   }
 }

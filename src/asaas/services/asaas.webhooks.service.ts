@@ -18,7 +18,7 @@ export class AsaasWebhooksService {
   constructor(
     private readonly ordersService: OrdersService,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   private async paymentConfirmed(data: PaymentWebook): Promise<void> {
     this.logger.log('INICIANDO WEBHOOK - EVENTO: PAYMENT_CONFIRMED');
@@ -37,12 +37,13 @@ export class AsaasWebhooksService {
       data.payment.id,
     );
 
-    await this.usersService.findOne(order.user_id);
+    const user = await this.usersService.findOne(order.user_id);
 
-    if (order.id != data.payment.customer) throw ASAAS_ERRORS.WEBHOOK_ERROR;
+    if (user.asaas_customer_id != data.payment.customer) throw ASAAS_ERRORS.WEBHOOK_ERROR;
 
     await this.ordersService.updateOrderStatus(
       order.id,
+      order.nuvemshop_order_id,
       PaymentStatus.CONFIRMED,
     );
   }
