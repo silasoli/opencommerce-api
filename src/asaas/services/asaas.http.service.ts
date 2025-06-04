@@ -61,7 +61,7 @@ export class AsaasHttpService {
       }
 
       const errors = assasError.response.data.errors[0];
-      throw new HttpException(errors, statusCode);
+      throw new HttpException(errors.description, statusCode);
     }
     throw ASAAS_ERRORS.UNKNOWN_ERROR;
   }
