@@ -291,7 +291,9 @@ export class OrdersService {
   public async findAll(userId: string): Promise<OrderResponseNuvemShopDto[]> {
     const user = await this.usersService.findOne(userId);
 
-    return this.nuvemshopOrdersService.getAllByCustomerId(user.id);
+    return this.nuvemshopOrdersService.getAllByCustomerId(
+      user.nuvemshop_customer_id,
+    );
   }
 
   public async findOne(

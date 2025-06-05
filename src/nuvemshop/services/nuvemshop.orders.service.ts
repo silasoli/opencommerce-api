@@ -53,7 +53,7 @@ export class NuvemshopOrdersService {
     );
   }
 
-  async getAllByCustomerId(id: string): Promise<OrderResponseNuvemShopDto[]> {
+  async getAllByCustomerId(id: number): Promise<OrderResponseNuvemShopDto[]> {
     const params = new URLSearchParams();
     params.append('customer_ids', id.toString());
 

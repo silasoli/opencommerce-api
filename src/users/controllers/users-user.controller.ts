@@ -36,7 +36,7 @@ export class UsersUserController {
   @Role([Roles.USER])
   @Get('')
   public async findOne(@UserRequest() user: UserRequestDTO) {
-    return this.usersService.findOne(user._id);
+    return this.usersService.findOne(user.id);
   }
 
   @ApiOperation({ summary: 'Editar conta logada' })
@@ -56,6 +56,6 @@ export class UsersUserController {
     @UserRequest() user: UserRequestDTO,
     @Body() dto: UpdateUserDto,
   ) {
-    return this.usersService.update(user._id, dto);
+    return this.usersService.update(user.id, dto);
   }
 }

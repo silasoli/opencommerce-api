@@ -7,5 +7,5 @@ export class UserRequestDTO {
   @IsNotEmpty({ message: 'O ID não pode estar vazio.' })
   // @IsMongoId({ message: 'O ID fornecido não está em um formato válido.' })
   @IsUUID(undefined, { message: 'ID must be an UUID.' })
-  _id: string;
+  id: string;
 }

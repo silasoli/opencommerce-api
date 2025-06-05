@@ -52,7 +52,7 @@ export class OrdersController {
     @Ip() ip: string,
     // ): Promise<OrderResponseNuvemShopDto> {
   ): Promise<unknown> {
-    return this.service.create(user._id, dto, ip);
+    return this.service.create(user.id, dto, ip);
     // return this.service.create('123', dto, ip);
   }
 
@@ -66,7 +66,7 @@ export class OrdersController {
   findAll(
     @UserRequest() user: UserRequestDTO,
   ): Promise<OrderResponseNuvemShopDto[]> {
-    return this.service.findAll(user._id);
+    return this.service.findAll(user.id);
   }
 
   @ApiOperation({ summary: 'Retorna a compra do usuário por id' })
@@ -80,7 +80,7 @@ export class OrdersController {
     @UserRequest() user: UserRequestDTO,
     @Param() params: IDNumberQueryDTO,
   ): Promise<OrderResponseNuvemShopDto> {
-    return this.service.findOne(user._id, params.id);
+    return this.service.findOne(user.id, params.id);
   }
 
   @Get(':id/check-status')
@@ -95,7 +95,7 @@ export class OrdersController {
     @UserRequest() user: UserRequestDTO,
     @Param() params: IDNumberQueryDTO,
   ): Promise<CheckStatusResponseDto> {
-    return this.service.checkStatusByID(user._id, params.id);
+    return this.service.checkStatusByID(user.id, params.id);
   }
 
   // @Patch(':id')

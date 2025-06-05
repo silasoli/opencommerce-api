@@ -26,10 +26,10 @@ import { UserRequest } from '../../auth/decorators/user-request.decorator';
 import { UserRequestDTO } from '../../auth/dto/user-request.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
 
-@ApiBearerAuth()
+// @ApiBearerAuth()
 @ApiTags('Users - Admin')
 @Controller('admin/users')
-@UseGuards(AuthUserJwtGuard, RoleGuard)
+// @UseGuards(AuthUserJwtGuard, RoleGuard)
 export class UsersAdminController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -40,7 +40,7 @@ export class UsersAdminController {
     type: UserResponseDto,
   })
   @ApiBody({ type: CreateUserDto })
-  @Role([Roles.ADMIN])
+  // @Role([Roles.ADMIN])
   @Post()
   public async create(@Body() dto: CreateUserDto): Promise<UserResponseDto> {
     return this.usersService.create(dto);
@@ -91,7 +91,7 @@ export class UsersAdminController {
     @UserRequest() user: UserRequestDTO,
     @Body() dto: UpdateUserDto,
   ) {
-    return this.usersService.update(user._id, dto);
+    return this.usersService.update(user.id, dto);
   }
 
   // @ApiOperation({ summary: 'Deletar conta de um usuário' })

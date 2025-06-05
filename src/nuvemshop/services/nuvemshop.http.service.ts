@@ -54,6 +54,16 @@ export class NuvemshopHttpService {
     } catch (error) {
       this.logger.log(`ERRO NA REQUISIÇÃO: ${method} ${url} - ${error}`);
 
+      if (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        error.response.data.code === 404 &&
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        error.response.data.description === 'Last page is 0'
+      ) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return [] as any;
+      }
+
       this.handleError(error);
     }
   }
@@ -63,6 +73,9 @@ export class NuvemshopHttpService {
       const nuvemshopError = error as NuvemshopError;
       const statusCode = nuvemshopError.response.status;
       const responseData = nuvemshopError.response.data;
+
+      console.log(nuvemshopError.response.data);
+      console.log(nuvemshopError.response.status);
 
       if (!responseData) {
         throw new HttpException(
