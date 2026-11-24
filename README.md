@@ -69,7 +69,7 @@ npm run start:dev
 ## Tests
 
 ```bash
-npm run test       # unit tests (Nuvemshop, Melhor Envio and ViaCEP services have mocked HTTP tests)
+npm run test       # includes integration tests against the real Nuvemshop, Melhor Envio and ViaCEP APIs (credentials required in .env)
 npm run test:cov
 ```
 
