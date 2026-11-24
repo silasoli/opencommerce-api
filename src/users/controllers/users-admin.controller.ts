@@ -26,10 +26,8 @@ import { UserRequest } from '../../auth/decorators/user-request.decorator';
 import { UserRequestDTO } from '../../auth/dto/user-request.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
 
-// @ApiBearerAuth()
 @ApiTags('Users - Admin')
 @Controller('admin/users')
-// @UseGuards(AuthUserJwtGuard, RoleGuard)
 export class UsersAdminController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -52,6 +50,8 @@ export class UsersAdminController {
     description: 'Listagem de contas dos usuários retornada com sucesso',
     type: [UserResponseDto],
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthUserJwtGuard, RoleGuard)
   @Get()
   @Role([Roles.ADMIN])
   public async findAll(): Promise<UserResponseDto[]> {
@@ -68,6 +68,8 @@ export class UsersAdminController {
     status: 404,
     description: 'Usuário não encontrado.',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthUserJwtGuard, RoleGuard)
   @Role([Roles.ADMIN])
   @Get(':id')
   public async findOne(@Param() params: IDPostgresQueryDTO) {
@@ -85,6 +87,8 @@ export class UsersAdminController {
     description: 'Usuário não encontrado.',
   })
   @ApiBody({ type: UpdateUserDto })
+  @ApiBearerAuth()
+  @UseGuards(AuthUserJwtGuard, RoleGuard)
   @Role([Roles.USER])
   @Patch(':id')
   public async update(
